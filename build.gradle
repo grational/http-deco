@@ -35,9 +35,15 @@ project.ext {
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
 	group                 "it.italiaonline.rnd"
-	version               "0.9.1" // (remove -SNAPSHOT for releases)
+	version               "0.9.2" // (remove -SNAPSHOT for releases)
 	description           "Provide functionalities as caching and retrying to any URL connection."
 	wrapper.gradleVersion "$gradleVersion"
+}
+
+// target java 7
+allprojects {
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
 }
 
 repositories {
