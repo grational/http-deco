@@ -23,9 +23,9 @@ class QParamsFilter implements NetConnection {
 		def output = this.origin.toString()
 		this.tabu.each { qparam ->
 			output = output.replaceAll(/${qparam}=[^&]*/,'')
-										 .replaceAll(/&&/,'&')
-										 .replaceAll(/[?]&/,'?')
-										 .replaceAll(/[?]$/,'')
+			               .replaceAll(/&&/,'&')
+			               .replaceAll(/[?]&/,'?')
+			               .replaceAll(/[?]$/,'')
 		}
 		return output
 	}

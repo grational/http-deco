@@ -8,34 +8,31 @@ class CachedConnection implements NetConnection { // {{{
 
 	private final NetConnection origin
 	private final BigInteger    leaseTime
-	private final String        basepath
+	private final CacheFile     cacheFile
+	private final Closure       missOperation
 
-	CachedConnection( NetConnection org,
-										String basepath,
-										BigInteger lt) {
-		this.origin    = org
-		this.basepath  = basepath
-		this.leaseTime = lt
+	CachedConnection (
+		NetConnection org,
+		CacheFile cfile,
+		BigInteger lt,
+		Closure mos
+	) {
+		this.origin        = org
+		this.cacheFile     = cfile
+		this.leaseTime     = lt
+		this.missOperation = mos
 	}
 
 	@Override
 	String text() {
-		
 		String text
-		CacheFile ucf = new CacheFile(
-											this.basepath,
-											new Sha1Hash(
-												this.origin.toString()
-											).digest()
-										)
-
-		if ( ucf.valid(this.leaseTime) ) {
-			text = ucf.content()
+		if ( this.cacheFile.valid(this.leaseTime) ) {
+			text = this.cacheFile.content()
 		} else {
 			text = this.origin.text()
-			ucf.write(text)
+			this.cacheFile.write(text)
+			this.missOperation()
 		}
-
 		return text
 	}
 
