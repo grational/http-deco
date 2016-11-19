@@ -35,7 +35,7 @@ project.ext {
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
 	group                 "it.italiaonline.rnd"
-	version               "0.9.4" // (remove -SNAPSHOT for releases)
+	version               "0.10.0" // (remove -SNAPSHOT for releases)
 	description           "Provide functionalities as caching and retrying to any URL connection."
 	wrapper.gradleVersion "$gradleVersion"
 }
@@ -50,8 +50,9 @@ repositories {
 	jcenter()
 
 	// testing nexus server reachability
+	Integer.metaClass.getSeconds = { delegate * 1000 }
 	try {
-		if ( new URL(nexusUrl).text.contains('Sonatype Nexus') ) {
+		if ( new URL(nexusUrl).getText(connectTimeout: 5.seconds).contains('Sonatype Nexus') ) {
 			logger.warn("Adding maven repositories, nexus <$nexusUrl>")
 			maven {
 				url "${nexusUrl}/content/repositories/snapshots"
@@ -60,7 +61,7 @@ repositories {
 		} else {
 			logger.warn("maven repos skipped cause <$nexusUrl> is not reachable!")
 		}
-	} catch (UnknownHostException uhe) {
+	} catch (IOException e) {
 		def host = nexusUrl.find($/(?<=https?://)[^/]+/$)
 		logger.warn("maven repos skipped cause <$host> cannot be resolved!")
 	}

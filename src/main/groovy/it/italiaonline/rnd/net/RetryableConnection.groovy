@@ -23,7 +23,6 @@ class RetryableConnection implements NetConnection {
 	String text() {
 		for ( Integer time = 1; time <= retries; time++ ) {
 			try {
-				// Get Yext REST result
 				return this.origin.text()
 			}
 			catch (IOException ioe) {
