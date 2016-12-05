@@ -1,8 +1,6 @@
 package it.italiaonline.rnd.net
 
-import java.security.MessageDigest
 import it.italiaonline.rnd.cache.CacheFile
-import it.italiaonline.rnd.cache.Sha1Hash
 
 class CachedConnection implements NetConnection { // {{{
 
@@ -15,7 +13,7 @@ class CachedConnection implements NetConnection { // {{{
 		NetConnection org,
 		CacheFile cfile,
 		BigInteger lt,
-		Closure mos
+		Closure mos = {}
 	) {
 		this.origin        = org
 		this.cacheFile     = cfile

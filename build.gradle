@@ -24,18 +24,21 @@ plugins {
 
 // [general] configuration
 project.ext {
-	groovyVersion   = '2.4.7'
-	gradleVersion   = '3.2'
-	spockVersion    = '1.0-groovy-2.4'
-	codenarcVersion = '0.24.1'
-	slf4jVersion    = '1.7.21'
-	log4jVersion    = '2.6.2'
+	groovyVersion     = '2.4.7'
+	gradleVersion     = '3.2'
+	spockVersion      = '1.0-groovy-2.4'
+	cglibVersion      = '3.2.4'
+	objenesisVersion  = '2.4'
+	codenarcVersion   = '0.24.1'
+	slf4jVersion      = '1.7.21'
+	log4jVersion      = '2.6.2'
+	cacheDecVersion   = '0.1.0'
 }
 
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
 	group                 "it.italiaonline.rnd"
-	version               "0.10.0" // (remove -SNAPSHOT for releases)
+	version               "0.11.0" // (remove -SNAPSHOT for releases)
 	description           "Provide functionalities as caching and retrying to any URL connection."
 	wrapper.gradleVersion "$gradleVersion"
 }
@@ -77,8 +80,13 @@ dependencies {
 	compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
 	compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
 
+	// nexus internal packages
+	compile "it.italiaonline.rnd:cache-decorators:$cacheDecVersion"
+
 	// We use the awesome Spock testing and specification framework
 	testCompile "org.spockframework:spock-core:$spockVersion"
+	testCompile "cglib:cglib-nodep:$cglibVersion"
+	testCompile "org.objenesis:objenesis:$objenesisVersion"
 }
 
 // codenarc groovy source analyses

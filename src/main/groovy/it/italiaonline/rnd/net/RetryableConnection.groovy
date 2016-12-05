@@ -27,13 +27,12 @@ class RetryableConnection implements NetConnection {
 			}
 			catch (IOException ioe) {
 				if (time < retries) {
-					Integer sleepTime = baseTimeout * time
 					log.debug "Retrying connection after ${sleepTime}ms (time = ${time}, retries = ${retries}, sleepTime = ${sleepTime})"
-					// sleep linearly more at every retry
+					Integer sleepTime = baseTimeout * time
 					sleep sleepTime
 				} else {
 					log.debug "Connection killed after ${retries} times (time = ${time})"
-					throw new IOException("Connection retry limit exceeded", ioe)
+					throw new RuntimeException("Connection retry limit exceeded", ioe)
 				}
 			}
 		}

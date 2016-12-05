@@ -14,7 +14,9 @@ class QParamsFilterSpec extends Specification {
   def "Should filter out mutable parameters (tabu)"() {
     setup:
 			def url = 'https://graph.facebook.com/v2.8/search?type=adgeolocation&access_token=super_secrec_access_token&country_code=IT&region_id=friuli-venezia%20giulia&location_types=city&q=fiume+veneto'
-			SimpleConnection sconn = new SimpleConnection(url)
+			SimpleConnection sconn = new SimpleConnection(
+			                           new URL(url)
+			                         )
     expect:
 			output == new QParamsFilter(sconn,tabu).toString()
     where:
