@@ -33,7 +33,7 @@ class CachedConnectionSpec extends Specification {
 
 			CachedConnection cconn = new CachedConnection (
 			                           sconn,       // NetConnection
-			                           cache, // CacheFile
+			                           cache,       // CacheFile
 			                           leaseTime    // BigInteger
 			                         )
 
