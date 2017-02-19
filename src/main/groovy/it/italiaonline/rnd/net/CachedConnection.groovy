@@ -8,17 +8,20 @@ class CachedConnection implements NetConnection { // {{{
 	private final BigInteger    leaseTime
 	private final CacheFile     cacheFile
 	private final Closure       missOperation
+	private final Boolean       missOpBefore
 
 	CachedConnection (
 		NetConnection org,
 		CacheFile cfile,
 		BigInteger lt,
-		Closure mos = {}
+		Closure mos = {},
+		Boolean mosBefore = false
 	) {
 		this.origin        = org
 		this.cacheFile     = cfile
 		this.leaseTime     = lt
 		this.missOperation = mos
+		this.missOpBefore  = mosBefore
 	}
 
 	@Override
@@ -27,9 +30,14 @@ class CachedConnection implements NetConnection { // {{{
 		if ( this.cacheFile.valid(this.leaseTime) ) {
 			text = this.cacheFile.content()
 		} else {
+			if ( this.missOpBefore )
+				this.missOperation()
+
 			text = this.origin.text()
 			this.cacheFile.write(text)
-			this.missOperation()
+
+			if ( ! this.missOpBefore )
+				this.missOperation()
 		}
 		return text
 	}
