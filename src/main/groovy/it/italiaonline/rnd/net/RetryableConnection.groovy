@@ -5,17 +5,17 @@ import groovy.util.logging.Slf4j
 class RetryableConnection implements NetConnection {
 
 	private final NetConnection origin
-	private final Integer baseTimeout
-	private final Integer retries
+	private final Integer       retries
+	private final Closure       retryOperation
 
 	RetryableConnection(
 		NetConnection org,
-		Integer baseTimeout,
-		Integer retries
+		Integer       retries = 5,
+		Closure       rop = { curr, tot -> sleep(1000 * curr) }
 	) {
-		this.origin      = org
-		this.baseTimeout = baseTimeout
-		this.retries     = retries
+		this.origin         = org
+		this.retries        = retries
+		this.retryOperation = rop
 	}
 
 	@Override
@@ -25,14 +25,10 @@ class RetryableConnection implements NetConnection {
 				return this.origin.text()
 			}
 			catch (IOException ioe) {
-				if (time < retries) {
-					log.debug "Retrying connection after ${sleepTime}ms (time = ${time}, retries = ${retries}, sleepTime = ${sleepTime})"
-					Integer sleepTime = baseTimeout * time
-					sleep sleepTime
-				} else {
-					log.debug "Connection killed after ${retries} times (time = ${time})"
-					throw new RuntimeException("Connection retry limit exceeded", ioe)
-				}
+				if (time < retries)
+					this.retryOperation.call(time, retries)
+				else
+					throw new RuntimeException("Retry limit exceeded for connection '${this.origin.toString()}'", ioe)
 			}
 		}
 	}
