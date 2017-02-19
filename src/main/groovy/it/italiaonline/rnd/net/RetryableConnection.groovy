@@ -2,7 +2,6 @@ package it.italiaonline.rnd.net
 
 import groovy.util.logging.Slf4j
 
-@Slf4j
 class RetryableConnection implements NetConnection {
 
 	private final NetConnection origin
