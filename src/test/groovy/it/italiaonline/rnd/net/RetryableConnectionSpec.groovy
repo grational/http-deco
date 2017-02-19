@@ -5,23 +5,19 @@ import spock.lang.Specification
 class RetryableConnectionSpec extends Specification {
 
 	// 1. fields
-	String url      = 'https://www.google.it'
-	String content  = 'Google homepage content'
+	String  url     = 'https://www.google.it'
+	String  content = 'Google homepage content'
 	Integer counter = 1
 	Integer retries = 3
-
-	SimpleConnection    sconn
-	RetryableConnection rconn
 
   // 2. fixture methods
 	// 3. feature methods
 	def "Should obtain the result after x retries"() {
 		setup:
-			sconn = Mock()
+			SimpleConnection sconn = Mock()
 			Number.metaClass.getSeconds { delegate * 1000 }
 			RetryableConnection rconn = new RetryableConnection (
 			                              sconn,     // NetConnection
-			                              2.seconds, // baseTimeout
 			                              retries    // retries
 			                            )
 
@@ -43,11 +39,10 @@ class RetryableConnectionSpec extends Specification {
 
 	def "Should exceed the retry connection limit and raise a RuntimeException"() {
 		setup:
-			sconn = Mock()
+			SimpleConnection sconn = Mock()
 			Number.metaClass.getSeconds { delegate * 1000 }
 			RetryableConnection rconn = new RetryableConnection (
 			                              sconn,     // NetConnection
-			                              2.seconds, // baseTimeout
 			                              retries    // retries
 			                            )
 
@@ -64,7 +59,7 @@ class RetryableConnectionSpec extends Specification {
 				return content
 			}
 			def exception = thrown(RuntimeException)
-			exception.message == "Connection retry limit exceeded"
+			exception.message == "Retry limit exceeded for connection '${sconn.toString()}'"
 			actualResult != content
 	}
   // 4. helper methods
