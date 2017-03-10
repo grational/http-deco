@@ -56,10 +56,8 @@ repositories {
 	try {
 		if ( new URL(nexusUrl).getText(connectTimeout: 5.seconds).contains('Sonatype Nexus') ) {
 			logger.warn("Adding maven repositories, nexus <$nexusUrl>")
-			maven {
-				url "${nexusUrl}/content/repositories/snapshots"
-				url "${nexusUrl}/content/repositories/releases"
-			}
+			maven { url "${nexusUrl}/content/repositories/snapshots" }
+			maven { url "${nexusUrl}/content/repositories/releases"  }
 		} else {
 			logger.warn("maven repos skipped cause <$nexusUrl> is not reachable!")
 		}
