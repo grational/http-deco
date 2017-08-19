@@ -10,7 +10,7 @@ class SimpleConnectionSpec extends Specification {
   def "Given an URL should return the string version of url and its content"() {
     setup:
 			URL mockUrl = GroovyMock()
-			mockUrl.getText()  >> content
+			mockUrl.getText(_)  >> content
 			mockUrl.toString() >> url
     when:
 			SimpleConnection sconn = new SimpleConnection(mockUrl)
