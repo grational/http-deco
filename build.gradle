@@ -31,14 +31,14 @@ project.ext {
 	objenesisVersion  = '2.4'
 	codenarcVersion   = '0.24.1'
 	slf4jVersion      = '1.7.21'
-	cacheDecVersion   = '0.1.0'
+	cacheDecVersion   = '0.3.0-SNAPSHOT'
 }
 
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
-	group                 "it.italiaonline.rnd"
-	version               "0.1.0-SNAPSHOT" // (remove -SNAPSHOT for releases)
-	description           "Provide functionalities as caching and retrying to any URL connection."
+	group                 'it.italiaonline.rnd'
+	version               '0.2.2' // (remove -SNAPSHOT for releases)
+	description           'Provide functionalities as caching and retrying to any URL connection.'
 	wrapper.gradleVersion "$gradleVersion"
 }
 
