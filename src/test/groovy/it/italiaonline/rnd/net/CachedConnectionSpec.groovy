@@ -1,7 +1,8 @@
 package it.italiaonline.rnd.net
 
 import spock.lang.Specification
-import it.italiaonline.rnd.cache.CacheFile
+import it.italiaonline.rnd.cache.CacheContainer
+import java.time.Duration
 
 class CachedConnectionSpec extends Specification {
 
@@ -10,45 +11,32 @@ class CachedConnectionSpec extends Specification {
 
 	def "Should query the inner NetConnection class just the first time"() {
 
-    setup:
+    given: 'a mocked simple connection'
 			SimpleConnection sconn = Mock()
-			sconn.text()     >> content
-			sconn.toString() >> url
-
+		and: 'a mocked file cache container'
+			CacheContainer cacheContainer = Mock()
+		and: 'a real cached connection'
 			Boolean alreadyCalled = false
-			CacheFile cache = GroovyMock()
-			cache.valid() >> {
-				Boolean result 
-				if (alreadyCalled) {
-					result = true
-				} else {
-					alreadyCalled = true
-					result = false
-				}
-				return result
-			}
-			cache.content() >> content
-
-			BigInteger leaseTime = 1000
-
+			Duration leaseTime = Duration.ofMillis(1000)
 			CachedConnection cconn = new CachedConnection (
 			                           sconn,       // NetConnection
-			                           cache,       // CacheFile
+			                           cacheContainer,   // CacheContainer
 			                           leaseTime    // BigInteger
 			                         )
 
     when: 'the first request to obtain the text is done'
 			def actualResult = cconn.text()
 		then: '1 call is done to obtain the text the first time'
-			1 * cache.valid(_) >> false
+			1 * cacheContainer.valid(_) >> false
 			1 * sconn.text() >> content
+			1 * cacheContainer.write(content) >> null
 			actualResult == content
 		
 		when: 'another request to obtain the text is done'
 			def cacheResult = cconn.text()
     then: 'the second time the cache is used'
-			1 * cache.valid(_) >> true
-			1 * cache.content() >> content
+			1 * cacheContainer.valid(_) >> true
+			1 * cacheContainer.content() >> content
 			cacheResult == content
 	}
 }
