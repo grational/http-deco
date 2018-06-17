@@ -6,8 +6,8 @@ import it.italiaonline.rnd.cache.CacheContainer
 class CachedConnection implements NetConnection { // {{{
 
 	private final NetConnection  origin
-	private final Duration       leaseTime
 	private final CacheContainer cacheContainer
+	private final Duration       leaseTime
 	private final Closure        missOperation
 	private final Boolean        missOpBefore
 
