@@ -17,20 +17,20 @@ plugins {
 	// groovy code linter
 	id 'codenarc'
 	// test code coverage plugin
-	id 'net.saliman.cobertura' version '2.5.4'
+	id 'net.saliman.cobertura' version '2.6.0'
 	// awesome git tag / gradle version integration
-	id 'pl.allegro.tech.build.axion-release' version '1.9.1'
+	id 'pl.allegro.tech.build.axion-release' version '1.10.0'
 }
 
 // [general] configuration
 project.ext {
-	groovyVersion     = '2.4.7'
-	gradleVersion     = '3.2'
-	spockVersion      = '1.0-groovy-2.4'
-	cglibVersion      = '3.2.4'
-	objenesisVersion  = '2.4'
-	codenarcVersion   = '0.24.1'
-	slf4jVersion      = '1.7.21'
+	groovyVersion     = '2.5.6'
+	gradleVersion     = '5.2.1'
+	spockVersion      = '1.3-groovy-2.5'
+	cglibVersion      = '3.2.10'
+	objenesisVersion  = '3.0.1'
+	codenarcVersion   = '1.3'
+	slf4jVersion      = '1.7.26'
 	cacheDecVersion   = '0.3.0'
 }
 
@@ -44,7 +44,7 @@ project.with {
 
 // target java 7
 allprojects {
-	sourceCompatibility = 7
+	sourceCompatibility = 8
 	targetCompatibility = sourceCompatibility
 }
 
@@ -56,7 +56,7 @@ repositories {
 
 dependencies {
 	// Groovy language support
-	compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+	compile "org.codehaus.groovy:groovy:$groovyVersion"
 
 	// Slf4j dependencies with log4j2 backend
 	compile "org.slf4j:slf4j-api:$slf4jVersion"
