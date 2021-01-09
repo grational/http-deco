@@ -1,4 +1,4 @@
-package it.italiaonline.rnd.net.http
+package it.grational.http.header
 
 interface Header {
 	String name()

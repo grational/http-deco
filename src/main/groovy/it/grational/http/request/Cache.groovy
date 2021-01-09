@@ -1,18 +1,18 @@
-package it.italiaonline.rnd.net
+package it.grational.http.request
 
 import java.time.Duration
 import it.italiaonline.rnd.cache.CacheContainer
 
-class CachedConnection implements NetConnection { // {{{
+class Cache implements HttpRequest {
 
-	private final NetConnection  origin
+	private final HttpRequest  origin
 	private final CacheContainer cacheContainer
 	private final Duration       leaseTime
 	private final Closure        missOperation
 	private final Boolean        missOpBefore
 
-	CachedConnection (
-		NetConnection org,
+	Cache (
+		HttpRequest org,
 		CacheContainer cc,
 		Duration lt,
 		Closure mos = {},
@@ -48,4 +48,4 @@ class CachedConnection implements NetConnection { // {{{
 		this.origin.toString()
 	}
 
-} // }}}
+}

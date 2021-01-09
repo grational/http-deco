@@ -1,13 +1,13 @@
-package it.italiaonline.rnd.net.http
+package it.grational.http.header
 
 import spock.lang.*
 
-class AuthorizationHeaderUSpec extends Specification {
+class AuthorizationUSpec extends Specification {
 
 	@Unroll
 	def "Should raise an exception when the parameters are invalid"() {
 		when:
-			new AuthorizationHeader (
+			new Authorization (
 				username: username,
 				password: password
 			)
@@ -16,14 +16,14 @@ class AuthorizationHeaderUSpec extends Specification {
 			exception.message == expectedMessage
 		where:
 			username   | password   || expectedMessage
-			null       | 'password' || "[AuthorizationHeader] Invalid username parameter"
-			'username' | null       || "[AuthorizationHeader] Invalid password parameter"
+			null       | 'password' || "[Authorization] Invalid username parameter"
+			'username' | null       || "[Authorization] Invalid password parameter"
 	}
 
 	@Unroll
 	def "Should return the correct value for a basic authentication header"() {
 		given:
-			def header = new AuthorizationHeader (
+			def header = new Authorization (
 				username: 'username',
 				password: 'password'
 			)

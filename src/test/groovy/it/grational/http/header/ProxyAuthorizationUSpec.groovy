@@ -1,13 +1,13 @@
-package it.italiaonline.rnd.net.http
+package it.grational.http.header
 
 import spock.lang.*
 
-class ProxyAuthorizationHeaderUSpec extends Specification {
+class ProxyAuthorizationUSpec extends Specification {
 
 	@Unroll
 	def "Should raise an exception when the parameters are invalid"() {
 		when:
-			new ProxyAuthorizationHeader (
+			new ProxyAuthorization (
 				username: username,
 				password: password
 			)
@@ -16,14 +16,14 @@ class ProxyAuthorizationHeaderUSpec extends Specification {
 			exception.message == expectedMessage
 		where:
 			username   | password   || expectedMessage
-			null       | 'password' || "[ProxyAuthorizationHeader] Invalid username parameter"
-			'username' | null       || "[ProxyAuthorizationHeader] Invalid password parameter"
+			null       | 'password' || "[ProxyAuthorization] Invalid username parameter"
+			'username' | null       || "[ProxyAuthorization] Invalid password parameter"
 	}
 
 	@Unroll
 	def "Should return the correct value for a basic authentication header"() {
 		given:
-			def header = new ProxyAuthorizationHeader (
+			def header = new ProxyAuthorization (
 				username: 'username',
 				password: 'password'
 			)

@@ -1,14 +1,14 @@
-package it.italiaonline.rnd.net.http
+package it.grational.http.header
 
-class AuthorizationHeader extends BasicAuthenticationHeader {
-	AuthorizationHeader(Map params) {
+class ProxyAuthorization extends BasicAuthentication {
+	ProxyAuthorization(Map params) {
 		this.username = params.username ?: { throw new IllegalArgumentException("[${this.class.simpleName}] Invalid username parameter") }()
 		this.password = params.password ?: { throw new IllegalArgumentException("[${this.class.simpleName}] Invalid password parameter")}()
 	}
 
 	@Override
 	String name() {
-		return 'Authorization'
+		return 'Proxy-Authorization'
 	}
 
 }

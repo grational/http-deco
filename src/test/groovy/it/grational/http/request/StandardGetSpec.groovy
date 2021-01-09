@@ -1,8 +1,8 @@
-package it.italiaonline.rnd.net
+package it.grational.http.request
 
 import spock.lang.Specification
 
-class SimpleConnectionSpec extends Specification {
+class StandardGetSpec extends Specification {
 
 	String url     = 'https://www.google.it'
 	String content = 'Google homepage content'
@@ -13,9 +13,9 @@ class SimpleConnectionSpec extends Specification {
 			mockUrl.getText(_)  >> content
 			mockUrl.toString() >> url
     when:
-			SimpleConnection sconn = new SimpleConnection(mockUrl)
+			StandardGet stdGet = new StandardGet(mockUrl)
     then:
-			sconn.text()      == content
-			sconn.toString()  == url
+			stdGet.text()     == content
+			stdGet.toString() == url
   }
 }

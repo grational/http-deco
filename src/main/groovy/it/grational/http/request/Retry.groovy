@@ -1,17 +1,15 @@
-package it.italiaonline.rnd.net
+package it.grational.http.request
 
-import groovy.util.logging.Slf4j
+class Retry implements HttpRequest {
 
-class RetryableConnection implements NetConnection {
-
-	private final NetConnection origin
+	private final HttpRequest origin
 	private final Integer       retries
 	private final Closure       retryOperation
 
-	RetryableConnection(
-		NetConnection org,
-		Integer       retries = 5,
-		Closure       rop = { curr, tot -> sleep(1000 * curr) }
+	Retry (
+		HttpRequest org,
+		Integer     retries = 5,
+		Closure     rop = { curr, tot -> sleep(1000 * curr) }
 	) {
 		this.origin         = org
 		this.retries        = retries

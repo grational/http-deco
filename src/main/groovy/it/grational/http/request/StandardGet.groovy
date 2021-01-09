@@ -1,6 +1,6 @@
-package it.italiaonline.rnd.net
+package it.grational.http.request
 
-class SimpleConnection implements NetConnection {
+class StandardGet implements HttpRequest {
 
 	private final URL url
 	private final Map connectionParameters
@@ -9,7 +9,7 @@ class SimpleConnection implements NetConnection {
 	 * Secondary Constructor
 	 * @param URL the URL to connect to
 	 */
-	SimpleConnection(URL url) {
+	StandardGet(URL url) {
 		this(url,[:])
 	}
 
@@ -21,7 +21,7 @@ class SimpleConnection implements NetConnection {
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
 	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 */
-	SimpleConnection(
+	StandardGet (
 		URL url,
 		Map cp
 	) {

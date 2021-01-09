@@ -1,6 +1,6 @@
-package it.italiaonline.rnd.net.http
+package it.grational.http.header
 
-abstract class BasicAuthenticationHeader implements Header {
+abstract class BasicAuthentication implements Header {
 	protected String username
 	protected String password
 
