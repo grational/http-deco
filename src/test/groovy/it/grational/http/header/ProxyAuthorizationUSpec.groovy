@@ -32,7 +32,7 @@ class ProxyAuthorizationUSpec extends Specification {
 			header.value()    == expectedValue
 			header.toString() == expectedToString
 		where:
-			username   | password   || expectedName    | expectedValue                    | expectedToString
+			username   | password   || expectedName          | expectedValue                    | expectedToString
 			'username' | 'password' || 'Proxy-Authorization' | 'Basic dXNlcm5hbWU6cGFzc3dvcmQ=' | "${expectedName}: ${expectedValue}"
 	}
 }

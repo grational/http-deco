@@ -9,7 +9,7 @@ class Retry implements HttpRequest {
 	Retry (
 		HttpRequest org,
 		Integer     retries = 5,
-		Closure     rop = { curr, tot -> sleep(1000 * curr) }
+		Closure     rop = { curr, tot -> Thread.sleep(1000 * curr) }
 	) {
 		this.origin         = org
 		this.retries        = retries
