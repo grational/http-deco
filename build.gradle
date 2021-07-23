@@ -9,32 +9,20 @@ plugins {
 	// support for groovy
 	id 'groovy'
 	id 'java-library'
-	// autogenerate eclipse project files
-	id 'eclipse'
-	// create and html index linking every report generated
-	id 'build-dashboard'
-	// view of the project (jars used, navigable source tree)
-	id 'project-report'
-	// groovy code linter
-	id 'codenarc'
 	// required by jitpack
 	id 'maven-publish'
-	// test code coverage plugin
-	id 'net.saliman.cobertura' version '4.0.0'
 	// awesome git tag / gradle version integration
 	id 'pl.allegro.tech.build.axion-release' version '1.13.3'
 }
 
 // [general] configuration
 project.ext {
-	groovyVersion     = '3.0.8'
-	gradleVersion     = '7.1.1'
-	spockVersion      = '2.0-groovy-3.0'
-	cglibVersion      = '3.3.0'
-	objenesisVersion  = '3.2'
-	codenarcVersion   = '2.1.0'
-	slf4jVersion      = '1.7.31'
-	cacheDecVersion   = '0.3.0'
+	groovyVersion   = '3.0.8'
+	gradleVersion   = '7.1.1'
+	spockVersion    = '2.0-groovy-3.0'
+	slf4jVersion    = '1.7.31'
+	cacheDecVersion = '0.3.0'
+	wiremockVersion = '2.27.2'
 }
 
 scmVersion {
@@ -75,31 +63,8 @@ dependencies {
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
 		"org.spockframework:spock-core:$spockVersion",
-		"cglib:cglib-nodep:$cglibVersion",
-		"org.objenesis:objenesis:$objenesisVersion",
-		'com.github.tomakehurst:wiremock:2.27.2',
+		"com.github.tomakehurst:wiremock:$wiremockVersion"
 	)
-}
-
-// codenarc groovy source analyses
-codenarc{
-	toolVersion = "$codenarcVersion"
-
-	codenarcMain {
-		configFile = rootProject.file('config/codenarc/ruleset.groovy')
-		exclude "**/package-info.*"
-		ignoreFailures true       // does not block builds
-		maxPriority1Violations 0
-		maxPriority2Violations 10
-		maxPriority3Violations 20
-	}
-	codenarcTest {
-		configFile = rootProject.file('config/codenarc/ruleset-test.groovy')
-		ignoreFailures true
-		maxPriority1Violations 0
-		maxPriority2Violations 10
-		maxPriority3Violations 20
-	}
 }
 
 // [tasks] configuration //
@@ -116,10 +81,6 @@ jar {
 check {
 	// clean before check
 	dependsOn 'clean'
-	// create the code coverage report
-	dependsOn 'cobertura'
-	// set the correct order for the dep tasks
-	tasks.findByName('cobertura').mustRunAfter 'clean'
 }
 
 // [tasks] definition
