@@ -17,6 +17,8 @@ plugins {
 	id 'project-report'
 	// groovy code linter
 	id 'codenarc'
+	// required by jitpack
+	id 'maven-publish'
 	// test code coverage plugin
 	id 'net.saliman.cobertura' version '4.0.0'
 	// awesome git tag / gradle version integration
