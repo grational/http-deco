@@ -18,7 +18,7 @@ plugins {
 // [general] configuration
 project.ext {
 	groovyVersion   = '3.0.8'
-	gradleVersion   = '7.1.1'
+	gradleVersion   = '6.9'
 	spockVersion    = '2.0-groovy-3.0'
 	slf4jVersion    = '1.7.31'
 	cacheDecVersion = '0.3.0'
