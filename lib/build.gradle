@@ -18,7 +18,6 @@ plugins {
 // [general] configuration
 project.ext {
 	groovyVersion   = '3.0.8'
-	gradleVersion   = '6.9'
 	spockVersion    = '2.0-groovy-3.0'
 	slf4jVersion    = '1.7.31'
 	cacheDecVersion = '0.3.0'
@@ -71,6 +70,18 @@ dependencies {
 tasks.withType(Test) {
 	useJUnitPlatform()
 	maxParallelForks = Runtime.runtime.availableProcessors() / 2
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			groupId = 'com.github.grational'
+			artifactId = 'connection-decorators'
+			version = scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
+
+			from components.java
+		}
+	}
 }
 
 jar {
