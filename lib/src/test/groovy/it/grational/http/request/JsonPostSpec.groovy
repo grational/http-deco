@@ -61,10 +61,6 @@ class JsonPostSpec extends Specification {
 					'Content-Type',
 					equalTo(contentTypeHeader)
 				)
-				.withHeader (
-					"Accept",
-					equalTo(acceptHeader)
-				)
 				.withRequestBody (
 					equalToJson(stringInput)
 				)
@@ -93,10 +89,6 @@ class JsonPostSpec extends Specification {
 				.withHeader (
 					'Content-Type',
 					equalTo(contentTypeHeader)
-				)
-				.withHeader (
-					"Accept",
-					equalTo(acceptHeader)
 				)
 				.withRequestBody (
 					equalToJson(JsonOutput.toJson(mapInput))

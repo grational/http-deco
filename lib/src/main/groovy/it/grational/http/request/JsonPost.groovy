@@ -22,7 +22,6 @@ class JsonPost extends StandardPost {
 			params.parameters ?: [:],
 			[
 				'Content-Type': 'application/json; utf-8',
-				Accept: 'application/json'
 			] << ( params.headers ?: [:] )
 		)
 	}
