@@ -2,7 +2,7 @@ package it.grational.http.request
 
 import groovy.json.JsonOutput
 
-class JsonPost extends StandardPost {
+class JsonPost extends Post {
 
 	/**
 	 * Primary Constructor
@@ -17,12 +17,14 @@ class JsonPost extends StandardPost {
 	 */
 	JsonPost(Map params) {
 		super (
-			params.url,
-			params.json ?: JsonOutput.toJson(params.map),
-			params.parameters ?: [:],
-			[
+			url: params.url,
+			body: (params.json ?: JsonOutput.toJson(params.map)),
+			parameters: params.parameters,
+			connectTimeout: params.connectTimeout,
+			readTimeout: params.readTimeout,
+			headers: ( params.headers ?: [:] ) << [
 				'Content-Type': 'application/json; utf-8',
-			] << ( params.headers ?: [:] )
+			]
 		)
 	}
 
