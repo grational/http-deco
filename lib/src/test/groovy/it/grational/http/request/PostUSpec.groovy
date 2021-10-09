@@ -2,57 +2,45 @@ package it.grational.http.request
 
 import spock.lang.*
 import it.grational.http.header.Authorization
+import support.MockServer
 
 // wiremock imports
-import com.github.tomakehurst.wiremock.WireMockServer
 import static com.github.tomakehurst.wiremock.client.WireMock.*
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.github.tomakehurst.wiremock.client.BasicCredentials
 
-class StandardPostSpec extends Specification {
+class PostUSpec extends Specification {
 
-	@Shared String  protocol    = 'http'
-	@Shared String  defaultHost = 'localhost'
-	@Shared Integer defaultPort = 1234
-	@Shared String  origin      = "${protocol}://${defaultHost}:${defaultPort}"
-	@Shared String inputPath = '/appropriate/path'
-	@Shared URL url = "${origin}${inputPath}".toURL()
-	@Shared WireMockServer wms
-
-	@Shared def okResponse = [
-		code: 200,
-		body: '{"status":"OK"}'
-	]
+	@Shared MockServer ms
 
 	def setupSpec() {
-		wms = new WireMockServer(options().port(defaultPort))
-		wms.start()
+		ms = new MockServer()
+		ms.start()
 		Integer.metaClass.getSeconds { delegate * 1000 }
 
-  	wms.stubFor (
-			post(urlPathEqualTo(inputPath))
+  	ms.stubFor (
+			post(urlPathEqualTo(ms.path))
 			.willReturn (
-				okJson(okResponse.body)
+				okJson(ms.ok.body)
 			)
 		)
 	}
 
 	def cleanupSpec() {
-		wms.stop()
+		ms.stop()
 	}
 
 	def "Should simply hit the target endpoint with a POST request without a payload"() {
 		when:
-			String result = new StandardPost(url).text()
+			String result = new Post(url: ms.url).text()
 		then:
-			wms.verify (
+			ms.verify (
 				1,
 				postRequestedFor (
-					urlPathEqualTo(inputPath)
+					urlPathEqualTo(ms.path)
 				)
 			)
 		and:
-			result == okResponse.body
+			result == ms.ok.body
 	}
 	
 	def "Should hit the target endpoint #url using the POST method with the body #body"() {
@@ -69,10 +57,10 @@ class StandardPostSpec extends Specification {
 			String acceptHeader = 'application/json'
 
 		when:
-			String result = new StandardPost (
-				url,
-				inputBody,
-				[
+			String result = new Post (
+				url: ms.url,
+				body: inputBody,
+				headers: [
 					(authHeader.name()): authHeader.value(),
 					'Content-Type': contentTypeHeader,
 					Accept: acceptHeader
@@ -80,10 +68,10 @@ class StandardPostSpec extends Specification {
 			).text()
 
 		then:
-			wms.verify (
+			ms.verify (
 				1,
 				postRequestedFor (
-					urlPathEqualTo(inputPath)
+					urlPathEqualTo(ms.path)
 				)
 				.withBasicAuth (
 					new BasicCredentials (
@@ -104,36 +92,35 @@ class StandardPostSpec extends Specification {
 				)
 			)
 		and:
-			result == okResponse.body
+			result == ms.ok.body
 	}
 
 	def "Should be capable of interrupting a connection when it is slowen then the read timeout"() {
 		given:
 			String delayedPath = '/more/delayed/path'
-			URL delayedUrl = "${origin}${delayedPath}".toURL()
+			URL delayedUrl = "${ms.origin}${delayedPath}".toURL()
 			String inputBody = '{"id":1,"add":1.0}'
 		and:
 			Integer lessTime = 2.seconds
 			Integer moreTime = 5.seconds
 		and:
-  		wms.stubFor (
+  		ms.stubFor (
 				post(urlPathEqualTo(delayedPath))
 				.willReturn (
-					okJson(okResponse.body)
+					okJson(ms.ok.body)
 					.withFixedDelay(moreTime)
 				)
 			)
 
 		when:
-			String result = new StandardPost (
-				delayedUrl,
-				inputBody,
-				[ readTimeout: lessTime ],
-				[:]
+			String result = new Post (
+				url: delayedUrl,
+				body: inputBody,
+				readTimeout: lessTime
 			).text()
 
 		then:
-			wms.verify (
+			ms.verify (
 				1,
 				postRequestedFor (
 					urlPathEqualTo(delayedPath)
@@ -147,30 +134,29 @@ class StandardPostSpec extends Specification {
 	def "Should obtain the desired result when the read timeout is greater than the response delay of the connection"() {
 		given:
 			String delayedPath = '/less/delayed/path'
-			URL delayedUrl = "${origin}${delayedPath}".toURL()
+			URL delayedUrl = "${ms.origin}${delayedPath}".toURL()
 			String inputBody = '{"id":1,"add":1.0}'
 		and:
 			Integer lessTime = 2.seconds
 			Integer moreTime = 5.seconds
 		and:
-  		wms.stubFor (
+  		ms.stubFor (
 				post(urlPathEqualTo(delayedPath))
 				.willReturn (
-					okJson(okResponse.body)
+					okJson(ms.ok.body)
 					.withFixedDelay(lessTime)
 				)
 			)
 
 		when:
-			String result = new StandardPost (
-				delayedUrl,
-				inputBody,
-				[ readTimeout: moreTime, ],
-				[:]
+			String result = new Post (
+				url: delayedUrl,
+				body: inputBody,
+				readTimeout: moreTime,
 			).text()
 
 		then:
-			wms.verify (
+			ms.verify (
 				1,
 				postRequestedFor (
 					urlPathEqualTo(delayedPath)
@@ -179,7 +165,7 @@ class StandardPostSpec extends Specification {
 		and:
 			def exception = noExceptionThrown()
 		and:
-			result == okResponse.body
+			result == ms.ok.body
 	}
 
 }

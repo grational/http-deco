@@ -8,10 +8,10 @@ package it.grational.http.request
  */
 abstract class StandardRequest implements HttpRequest {
 
-	protected String    verb
+	protected String    method
 	protected URL       url
 	protected String    body
-	protected Map       connectionParameters
+	protected Map       parameters
 	protected Proxy     proxy
 
 	@Override
@@ -19,26 +19,26 @@ abstract class StandardRequest implements HttpRequest {
 		String result
 
 		this.url.openConnection(this.proxy).with {
-			requestMethod = this.verb
+			requestMethod = this.method
 
-			if (this.connectionParameters.connectTimeout)
+			if (this.parameters.connectTimeout)
 				setConnectTimeout ( // milliseconds
-					this.connectionParameters.connectTimeout
+					this.parameters.connectTimeout
 				)
-			if (this.connectionParameters.readTimeout)
+			if (this.parameters.readTimeout)
 				setReadTimeout ( // milliseconds
-					this.connectionParameters.readTimeout
+					this.parameters.readTimeout
 				)
-			if (this.connectionParameters.allowUserInteraction)
+			if (this.parameters.allowUserInteraction)
 				setAllowUserInteraction ( // boolean
-					this.connectionParameters.allowUserInteraction
+					this.parameters.allowUserInteraction
 				)
-			if (this.connectionParameters.useCaches)
+			if (this.parameters.useCaches)
 				setUseCaches ( // boolean
-					this.connectionParameters.useCaches
+					this.parameters.useCaches
 				)
 
-			this.connectionParameters.requestProperties.each { k, v ->
+			this.parameters.headers.each { k, v ->
 				setRequestProperty(k,v)
 			}
 
@@ -57,12 +57,12 @@ abstract class StandardRequest implements HttpRequest {
 	@Override
 	String toString() {
 		String r
-		r  = "verb: ${this.verb}"
+		r  = "method: ${this.method}"
 		r += "\nurl: ${this.url}"
 		if (this.body)
 			r += "\nbody: ${this.body}"
-		if (this.connectionParameters)
-			r += "\nparameters: ${this.connectionParameters}"
+		if (this.parameters)
+			r += "\nparameters: ${this.parameters}"
 		r += "\nproxy: ${this.proxy}"
 		return r
 	}

@@ -36,7 +36,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			String result = new Get(url: ms.url).text()
+			String result = new Get(ms.url).text()
 
 		then:
 			ms.verify (
