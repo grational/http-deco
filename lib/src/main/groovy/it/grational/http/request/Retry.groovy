@@ -3,12 +3,12 @@ package it.grational.http.request
 class Retry implements HttpRequest {
 
 	private final HttpRequest origin
-	private final Integer       retries
-	private final Closure       retryOperation
+	private final Integer     retries
+	private final Closure     retryOperation
 
 	Retry (
 		HttpRequest org,
-		Integer     retries = 5,
+		Integer     retries = 3,
 		Closure     rop = { curr, tot -> Thread.sleep(1000 * curr) }
 	) {
 		this.origin         = org
@@ -26,7 +26,7 @@ class Retry implements HttpRequest {
 				if (time < retries)
 					this.retryOperation.call(time, retries)
 				else
-					throw new RuntimeException("Retry limit exceeded for connection '${this.origin.toString()}'", ioe)
+					throw new RuntimeException("Retry limit (${retries}) exceeded for connection '${this.origin.toString()}'", ioe)
 			}
 		}
 	}

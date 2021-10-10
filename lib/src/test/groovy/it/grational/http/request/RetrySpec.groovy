@@ -5,56 +5,55 @@ import spock.lang.*
 class RetrySpec extends Specification {
 
 	// 1. fields
-	String  url     = 'https://www.google.it'
-	String  content = 'Google homepage content'
+	String url = 'https://www.google.it'
+	String expectedContent = 'Google homepage content'
 	Integer counter = 1
 	Integer retries = 3
 
   // 2. fixture methods
 	// 3. feature methods
 	def "Should obtain the result after x retries"() {
-		setup:
-			StandardGet stdGet = Mock()
-			Number.metaClass.getSeconds { delegate * 1000 }
-			Retry retry = new Retry(stdGet, retries)
+		given:
+			Get get = Mock()
 
     when: 'the request to obtain the text is done'
-			def actualResult = retry.text()
+			def actualResult = new Retry(get, retries).text()
 
-		then: '2 calls to StandardGet are done and the actual content is retrieved'
-			2 * stdGet.text() >> {
+		then: '2 get.text() calls are done underneath'
+			2 * get.text() >> {
 				if ( counter < (retries-1) ) {
 					def exMessage = "Attempt ${counter}"
 					counter++
 					throw new IOException(exMessage)
 				}
-				return content
+				return expectedContent
 			}
+		and: 'no exception is thrown'
 			notThrown(RuntimeException)
-			actualResult == content
+		and: 'the expected content is retrieved'
+			actualResult == expectedContent
 	}
 
 	def "Should exceed the retry connection limit and raise a RuntimeException"() {
-		setup:
-			StandardGet stdGet = Mock()
-			Number.metaClass.getSeconds { delegate * 1000 }
-			Retry retry = new Retry(stdGet, retries)
-
+		given:
+			Get get = Mock()
     when: 'the request to obtain the text is done'
-			def actualResult = retry.text()
+			def actualResult = new Retry(get, retries).text()
 
-		then: '3 calls to StandardGet are done and 1 RuntimeException is thrown'
-			3 * stdGet.text() >> {
+		then: '3 calls to get.text() are done'
+			3 * get.text() >> {
 				if ( counter < (retries+1) ) {
 					def exMessage = "Attempt ${counter}"
 					counter++
 					throw new IOException(exMessage)
 				}
-				return content
+				return expectedContent
 			}
+		and: 'The limit exceeded RuntimeException is thrown'
 			def exception = thrown(RuntimeException)
-			exception.message == "Retry limit exceeded for connection '${stdGet.toString()}'"
-			actualResult != content
+			exception.message == "Retry limit (3) exceeded for connection '${get.toString()}'"
+		and: "the expected content has not been retrieved"
+			actualResult != expectedContent
 	}
   // 4. helper methods
 }
