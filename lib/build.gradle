@@ -17,11 +17,12 @@ plugins {
 
 // [general] configuration
 project.ext {
-	groovyVersion   = '3.0.8'
-	spockVersion    = '2.0-groovy-3.0'
-	slf4jVersion    = '1.7.31'
-	cacheDecVersion = '0.3.0'
-	wiremockVersion = '2.27.2'
+	groovyVersion          = '3.0.9'
+	spockVersion           = '2.0-groovy-3.0'
+	slf4jVersion           = '1.7.32'
+	cacheContainersVersion = 'release-1.0.0'
+	urlDecoratorsVersion   = 'release-1.0.1'
+	wiremockVersion        = '2.27.2'
 }
 
 scmVersion {
@@ -32,9 +33,9 @@ scmVersion {
 
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
-	group                 'it.italiaonline.rnd'
+	group                 'it.grational'
 	version               scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
-	description           'Provide functionalities as caching and retrying to any URL connection.'
+	description           'Provide all major HTTP method implementations and additional functionalities as caching and retrying.'
 }
 
 // target java 8
@@ -56,7 +57,9 @@ dependencies {
 	)
 
 	api (
-		"com.github.grational:cache-decorators:$cacheDecVersion"
+		"com.github.grational:cache-containers:$cacheContainersVersion",
+		"org.codehaus.groovy:groovy-json:$groovyVersion",
+		"com.github.grational:url-decorators:$urlDecoratorsVersion"
 	)
 
 	// We use the awesome Spock testing and specification framework
@@ -92,14 +95,6 @@ jar {
 check {
 	// clean before check
 	dependsOn 'clean'
-}
-
-// [tasks] definition
-task listJars {
-	description = 'print out the jars used by the project'
-	doLast {
-		configurations.compile.each { File file -> println file.name }
-	}
 }
 
 // vim: ft=groovy:fdm=indent

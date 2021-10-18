@@ -1,5 +1,7 @@
 package it.grational.http.request
 
+import it.grational.http.response.HttpResponse
+
 interface HttpRequest {
-	String text()
+	HttpResponse connect()
 }

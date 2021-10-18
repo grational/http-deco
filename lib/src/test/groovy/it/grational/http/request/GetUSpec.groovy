@@ -7,6 +7,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
 import it.grational.http.proxy.HttpAuthProxy
 import it.grational.http.proxy.HttpProxy
 import it.grational.http.header.ProxyAuthorization
+import it.grational.http.response.Response
+import it.grational.http.response.HttpResponse
 
 class GetUSpec extends Specification {
 
@@ -14,7 +16,7 @@ class GetUSpec extends Specification {
 	@Shared MockServer proxy
 
 	def setupSpec() {
-		ms = new MockServer()
+		ms = new MockServer(port: 1100)
 		ms.start()
 
 		proxy = new MockServer(port: 8080)
@@ -36,7 +38,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			String result = new Get(ms.url).text()
+			HttpResponse result = new Get(ms.url).connect()
 
 		then:
 			ms.verify (
@@ -46,7 +48,7 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 
 	def "Should hit the target endpoint through a proxy with a GET request"() {
@@ -77,7 +79,7 @@ class GetUSpec extends Specification {
 					host: proxy.host,
 					port: proxy.port
 				)
-			).text()
+			).connect()
 
 		then:
 			ms.verify (
@@ -94,7 +96,31 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
+	}
+
+	@Ignore
+	// TODO: it works but it requires one to manually setup and start a squid (or similar) proxy server that requires authentication using proxy_username and proxy_password
+	def "Should hit google through a squid proxy server with authentication"() {
+		given:
+			def url = "https://www.google.com".toURL()
+		and:
+			def realProxy = [
+				host: 'localhost',
+				port: 8888
+			]
+		when:
+			def result = new Get (
+				url: url,
+				proxy: new HttpAuthProxy (
+					host: realProxy.host,
+					port: realProxy.port,
+					username: 'proxy_username',
+					password: 'proxy_password'
+				)
+			).connect()
+		then:
+			result.text() =~ 'google'
 	}
 
 	@Ignore
@@ -137,7 +163,7 @@ class GetUSpec extends Specification {
 					username: 'proxy_username',
 					password: 'proxy_password'
 				)
-			).text()
+			).connect()
 		then:
 			ms.verify (
 				1,
@@ -153,31 +179,7 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
-	}
-
-	@Ignore
-	// TODO: it works but it requires one to manually setup and start a squid (or similar) proxy server that requires authentication using proxy_username and proxy_password
-	def "Should hit google through a squid proxy server with authentication"() {
-		given:
-			def url = "https://www.google.com".toURL()
-		and:
-			def realProxy = [
-				host: 'localhost',
-				port: 8888
-			]
-		when:
-			def result = new Get (
-				url: url,
-				proxy: new HttpAuthProxy (
-					host: realProxy.host,
-					port: realProxy.port,
-					username: 'proxy_username',
-					password: 'proxy_password'
-				)
-			).text()
-		then:
-			result =~ 'google'
+			result.text() == ms.ok.body
 	}
 
 }

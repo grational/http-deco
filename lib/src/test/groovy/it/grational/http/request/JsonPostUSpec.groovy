@@ -7,7 +7,7 @@ import support.MockServer
 // wiremock imports
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 
-class JsonPostSpec extends Specification {
+class JsonPostUSpec extends Specification {
 
 	@Shared MockServer ms
 
@@ -15,9 +15,8 @@ class JsonPostSpec extends Specification {
 	@Shared String acceptHeader = 'application/json'
 
 	def setupSpec() {
-		ms = new MockServer()
+		ms = new MockServer(port: 2525)
 		ms.start()
-		Integer.metaClass.getSeconds { delegate * 1000 }
 
   	ms.stubFor (
 			post(urlPathEqualTo(ms.path))
@@ -35,10 +34,10 @@ class JsonPostSpec extends Specification {
 		given:
 			String stringInput = '{"id":1,"add":1.0}'
 		when:
-			String result = new JsonPost (
+			def result = new JsonPost (
 				url: ms.url,
 				json: stringInput
-			).text()
+			).connect()
 
 		then:
 			ms.verify (
@@ -56,7 +55,7 @@ class JsonPostSpec extends Specification {
 			)
 
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 
 	def "Should could be capable of handling a map version of the json body"() {
@@ -66,10 +65,10 @@ class JsonPostSpec extends Specification {
 				add: 1.0
 			]
 		when:
-			String result = new JsonPost (
+			def result = new JsonPost (
 				url: ms.url,
 				map: mapInput
-			).text()
+			).connect()
 		then:
 			ms.verify (
 				1,
@@ -85,7 +84,7 @@ class JsonPostSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 
 }

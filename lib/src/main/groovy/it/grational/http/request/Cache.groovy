@@ -1,11 +1,13 @@
 package it.grational.http.request
 
 import java.time.Duration
-import it.italiaonline.rnd.cache.CacheContainer
+import it.grational.cache.CacheContainer
+import it.grational.http.response.Response
+import it.grational.http.response.HttpResponse
 
 class Cache implements HttpRequest {
 
-	private final HttpRequest  origin
+	private final HttpRequest    origin
 	private final CacheContainer cacheContainer
 	private final Duration       leaseTime
 	private final Closure        missOperation
@@ -26,21 +28,25 @@ class Cache implements HttpRequest {
 	}
 
 	@Override
-	String text() {
-		String text
+	HttpResponse connect() {
+		HttpResponse response
 		if ( this.cacheContainer.valid(this.leaseTime) ) {
-			text = this.cacheContainer.content()
+			response = new HttpResponse.OkResponse (
+				new ByteArrayInputStream (
+					this.cacheContainer.content().getBytes()
+				)
+			)
 		} else {
 			if ( this.missOpBefore )
 				this.missOperation()
 
-			text = this.origin.text()
-			this.cacheContainer.write(text)
+			response = this.origin.connect()
+			this.cacheContainer.write(response.text())
 
 			if ( ! this.missOpBefore )
 				this.missOperation()
 		}
-		return text
+		return response
 	}
 
 	@Override

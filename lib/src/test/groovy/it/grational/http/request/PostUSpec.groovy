@@ -13,7 +13,7 @@ class PostUSpec extends Specification {
 	@Shared MockServer ms
 
 	def setupSpec() {
-		ms = new MockServer()
+		ms = new MockServer(port: 2020)
 		ms.start()
 		Integer.metaClass.getSeconds { delegate * 1000 }
 
@@ -31,7 +31,7 @@ class PostUSpec extends Specification {
 
 	def "Should simply hit the target endpoint with a POST request without a payload"() {
 		when:
-			String result = new Post(url: ms.url).text()
+			def result = new Post(url: ms.url).connect()
 		then:
 			ms.verify (
 				1,
@@ -40,7 +40,7 @@ class PostUSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 	
 	def "Should hit the target endpoint #url using the POST method with the body #body"() {
@@ -57,7 +57,7 @@ class PostUSpec extends Specification {
 			String acceptHeader = 'application/json'
 
 		when:
-			String result = new Post (
+			def result = new Post (
 				url: ms.url,
 				body: inputBody,
 				headers: [
@@ -65,7 +65,7 @@ class PostUSpec extends Specification {
 					'Content-Type': contentTypeHeader,
 					Accept: acceptHeader
 				]
-			).text()
+			).connect()
 
 		then:
 			ms.verify (
@@ -92,7 +92,7 @@ class PostUSpec extends Specification {
 				)
 			)
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 
 	def "Should be capable of interrupting a connection when it is slowen then the read timeout"() {
@@ -113,11 +113,11 @@ class PostUSpec extends Specification {
 			)
 
 		when:
-			String result = new Post (
+			def result = new Post (
 				url: delayedUrl,
 				body: inputBody,
 				readTimeout: lessTime
-			).text()
+			).connect()
 
 		then:
 			ms.verify (
@@ -149,11 +149,11 @@ class PostUSpec extends Specification {
 			)
 
 		when:
-			String result = new Post (
+			def result = new Post (
 				url: delayedUrl,
 				body: inputBody,
-				readTimeout: moreTime,
-			).text()
+				readTimeout: moreTime
+			).connect()
 
 		then:
 			ms.verify (
@@ -165,7 +165,7 @@ class PostUSpec extends Specification {
 		and:
 			def exception = noExceptionThrown()
 		and:
-			result == ms.ok.body
+			result.text() == ms.ok.body
 	}
 
 }
