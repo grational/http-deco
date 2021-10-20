@@ -1,7 +1,5 @@
 package it.grational.http.proxy
 
-import groovy.lang.Delegate
-
 class HttpProxy extends Proxy {
 	
 	HttpProxy(Map params) {
