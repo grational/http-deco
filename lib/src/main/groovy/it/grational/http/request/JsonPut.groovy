@@ -23,7 +23,7 @@ class JsonPut extends Put {
 			connectTimeout: params.connectTimeout,
 			readTimeout: params.readTimeout,
 			headers: ( params.headers ?: [:] ) << [
-				'Content-Type': 'application/json; utf-8',
+				'Content-Type': 'application/json',
 			]
 		)
 	}

@@ -8,6 +8,7 @@
 plugins {
 	// support for groovy
 	id 'groovy'
+	// support for the api keyword in the dependencies section
 	id 'java-library'
 	// required by jitpack
 	id 'maven-publish'

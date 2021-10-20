@@ -16,45 +16,6 @@ abstract class StandardRequest implements HttpRequest {
 	protected Map       parameters
 	protected Proxy     proxy
 
-	// String text() {
-	// 	String result
-
-	// 	this.url.openConnection(this.proxy).with {
-	// 		requestMethod = this.method
-
-	// 		if (this.parameters.connectTimeout)
-	// 			setConnectTimeout ( // milliseconds
-	// 				this.parameters.connectTimeout
-	// 			)
-	// 		if (this.parameters.readTimeout)
-	// 			setReadTimeout ( // milliseconds
-	// 				this.parameters.readTimeout
-	// 			)
-	// 		if (this.parameters.allowUserInteraction)
-	// 			setAllowUserInteraction ( // boolean
-	// 				this.parameters.allowUserInteraction
-	// 			)
-	// 		if (this.parameters.useCaches)
-	// 			setUseCaches ( // boolean
-	// 				this.parameters.useCaches
-	// 			)
-
-	// 		this.parameters.headers.each { k, v ->
-	// 			setRequestProperty(k,v)
-	// 		}
-
-	// 		if (this.body) {
-	// 			doOutput = true
-	// 			outputStream.withWriter { writer ->
-	// 				writer.write (this.body)
-	// 			}
-	// 		}
-
-	// 		result = inputStream.text
-	// 	}
-	// 	return result
-	// }
-
 	@Override
 	HttpResponse connect() {
 		Response result
