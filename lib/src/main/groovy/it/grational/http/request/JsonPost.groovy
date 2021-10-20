@@ -24,7 +24,8 @@ class JsonPost extends Post {
 			readTimeout: params.readTimeout,
 			headers: ( params.headers ?: [:] ) << [
 				'Content-Type': 'application/json',
-			]
+			],
+			proxy: params.proxy
 		)
 	}
 

@@ -24,7 +24,8 @@ class JsonPut extends Put {
 			readTimeout: params.readTimeout,
 			headers: ( params.headers ?: [:] ) << [
 				'Content-Type': 'application/json',
-			]
+			],
+			proxy: params.proxy
 		)
 	}
 
