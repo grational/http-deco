@@ -13,7 +13,7 @@ plugins {
 	// required by jitpack
 	id 'maven-publish'
 	// awesome git tag / gradle version integration
-	id 'pl.allegro.tech.build.axion-release' version '1.13.3'
+	id 'pl.allegro.tech.build.axion-release' version '1.13.5'
 }
 
 // [general] configuration
@@ -35,12 +35,11 @@ scmVersion {
 
 project.with {
 	//project.name is set in the settings.gradle with rootProject.name
-	group                 'it.grational'
-	version               scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
-	description           'Provide all major HTTP method implementations and additional functionalities as caching and retrying.'
+	group       'it.grational'
+	version     scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
+	description 'Provide all major HTTP method implementations and additional functionalities as caching and retrying.'
 }
 
-// target java 8
 allprojects {
 	sourceCompatibility = 8
 	targetCompatibility = sourceCompatibility
@@ -77,7 +76,35 @@ tasks.withType(Test) {
 	useJUnitPlatform()
 	maxParallelForks = Runtime.runtime.availableProcessors() / 2
 }
+jar {
+	dependsOn 'check'
+}
 
+check {
+	dependsOn 'clean'
+}
+
+// [tasks] definition
+task uniTest(type: Test) {
+	description = 'unit tests task'
+	exclude '**/*ISpec*'
+	exclude '**/*FSpec*'
+}
+task intTest(type: Test) {
+	description = 'integration tests task'
+	exclude '**/*USpec*'
+	exclude '**/*FSpec*'
+}
+task funTest(type: Test) {
+	description = 'functional tests task'
+	exclude '**/*USpec*'
+	exclude '**/*ISpec*'
+}
+gradle.startParameter.excludedTaskNames += "uniTest"
+gradle.startParameter.excludedTaskNames += "intTest"
+gradle.startParameter.excludedTaskNames += "funTest"
+
+// required to work with jitpack.io
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
@@ -88,16 +115,6 @@ publishing {
 			from components.java
 		}
 	}
-}
-
-jar {
-	// execute check task when create the jar
-	dependsOn 'check'
-}
-
-check {
-	// clean before check
-	dependsOn 'clean'
 }
 
 // vim: ft=groovy:fdm=indent
