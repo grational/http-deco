@@ -11,8 +11,7 @@ class JsonPostUSpec extends Specification {
 
 	@Shared MockServer ms
 
-	@Shared String contentTypeHeader = 'application/json; utf-8'
-	@Shared String acceptHeader = 'application/json'
+	@Shared String contentTypeHeader = 'application/json'
 
 	def setupSpec() {
 		ms = new MockServer(port: 2525)
@@ -34,7 +33,7 @@ class JsonPostUSpec extends Specification {
 		given:
 			String stringInput = '{"id":1,"add":1.0}'
 		when:
-			def result = new JsonPost (
+			def response = new JsonPost (
 				url: ms.url,
 				json: stringInput
 			).connect()
@@ -55,7 +54,8 @@ class JsonPostUSpec extends Specification {
 			)
 
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 	def "Should could be capable of handling a map version of the json body"() {
@@ -65,7 +65,7 @@ class JsonPostUSpec extends Specification {
 				add: 1.0
 			]
 		when:
-			def result = new JsonPost (
+			def response = new JsonPost (
 				url: ms.url,
 				map: mapInput
 			).connect()
@@ -84,7 +84,8 @@ class JsonPostUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 }

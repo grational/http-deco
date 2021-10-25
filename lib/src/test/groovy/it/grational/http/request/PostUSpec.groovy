@@ -31,7 +31,7 @@ class PostUSpec extends Specification {
 
 	def "Should simply hit the target endpoint with a POST request without a payload"() {
 		when:
-			def result = new Post(url: ms.url).connect()
+			def response = new Post(url: ms.url).connect()
 		then:
 			ms.verify (
 				1,
@@ -40,7 +40,8 @@ class PostUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 	
 	def "Should hit the target endpoint #url using the POST method with the body #body"() {
@@ -53,11 +54,11 @@ class PostUSpec extends Specification {
 				username: user,
 				password: pass
 			)
-			String contentTypeHeader = 'application/json; utf-8'
+			String contentTypeHeader = 'application/json'
 			String acceptHeader = 'application/json'
 
 		when:
-			def result = new Post (
+			def response = new Post (
 				url: ms.url,
 				body: inputBody,
 				headers: [
@@ -92,7 +93,8 @@ class PostUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 	def "Should be capable of interrupting a connection when it is slowen then the read timeout"() {
@@ -113,7 +115,7 @@ class PostUSpec extends Specification {
 			)
 
 		when:
-			def result = new Post (
+			def response = new Post (
 				url: delayedUrl,
 				body: inputBody,
 				readTimeout: lessTime
@@ -131,7 +133,7 @@ class PostUSpec extends Specification {
 			exception.message == 'Read timed out'
 	}
 
-	def "Should obtain the desired result when the read timeout is greater than the response delay of the connection"() {
+	def "Should obtain the desired response when the read timeout is greater than the response delay of the connection"() {
 		given:
 			String delayedPath = '/less/delayed/path'
 			URL delayedUrl = "${ms.origin}${delayedPath}".toURL()
@@ -149,7 +151,7 @@ class PostUSpec extends Specification {
 			)
 
 		when:
-			def result = new Post (
+			def response = new Post (
 				url: delayedUrl,
 				body: inputBody,
 				readTimeout: moreTime
@@ -165,7 +167,8 @@ class PostUSpec extends Specification {
 		and:
 			def exception = noExceptionThrown()
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 }

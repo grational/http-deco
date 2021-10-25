@@ -6,11 +6,11 @@ import it.grational.http.response.HttpResponse
 class RetryUSpec extends Specification {
 
 	// 1. fields
-	String url = 'https://www.google.it'
-	String expectedContent = 'Google homepage content'
 	Integer counter = 1
-	Integer retries = 3
-	HttpResponse okResponse = new HttpResponse.OkResponse (
+	@Shared Integer retries = 3
+	@Shared String url = 'https://www.google.it'
+	@Shared String expectedContent = 'Google homepage content'
+	@Shared HttpResponse okResponse = new HttpResponse.OkResponse (
 		new ByteArrayInputStream (
 			expectedContent.bytes
 		)
@@ -37,12 +37,14 @@ class RetryUSpec extends Specification {
 		and: 'no exception is thrown'
 			notThrown(RuntimeException)
 		and: 'the expected content is retrieved'
+			actualResult.code() == 200
 			actualResult.text() == expectedContent
 	}
 
 	def "Should exceed the retry connection limit and raise a RuntimeException"() {
 		given:
 			Get get = Mock()
+
     when: 'the request to obtain the text is done'
 			def actualResult = new Retry(get, retries).connect()
 

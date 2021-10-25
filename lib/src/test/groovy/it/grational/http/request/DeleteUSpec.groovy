@@ -39,6 +39,7 @@ class DeleteUSpec extends Specification {
 				)
 			)
 		and:
+			response.code() == ms.ok.code
 			response.text() == ms.ok.body
 	}
 

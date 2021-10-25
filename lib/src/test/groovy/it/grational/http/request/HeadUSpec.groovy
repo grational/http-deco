@@ -4,9 +4,6 @@ import spock.lang.*
 import it.grational.specification.MockServer
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
-import it.grational.http.proxy.HttpAuthProxy
-import it.grational.http.proxy.HttpProxy
-import it.grational.http.header.ProxyAuthorization
 import it.grational.http.response.Response
 
 class HeadUSpec extends Specification {

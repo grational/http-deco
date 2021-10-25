@@ -6,8 +6,6 @@ import it.grational.specification.MockServer
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import it.grational.http.proxy.HttpAuthProxy
 import it.grational.http.proxy.HttpProxy
-import it.grational.http.header.ProxyAuthorization
-import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
 
@@ -39,7 +37,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			HttpResponse result = new Get(ms.url).connect()
+			HttpResponse response = new Get(ms.url).connect()
 
 		then:
 			ms.verify (
@@ -49,7 +47,8 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 	def "Should hit the target endpoint through a proxy with a GET request"() {
@@ -74,7 +73,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			def result = new Get (
+			def response = new Get (
 				url: url,
 				proxy: new HttpProxy (
 					host: proxy.host,
@@ -97,7 +96,8 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 	@Ignore
@@ -111,7 +111,7 @@ class GetUSpec extends Specification {
 				port: 8888
 			]
 		when:
-			def result = new Get (
+			def response = new Get (
 				url: url,
 				proxy: new HttpAuthProxy (
 					host: realProxy.host,
@@ -121,7 +121,8 @@ class GetUSpec extends Specification {
 				)
 			).connect()
 		then:
-			result.text() =~ 'google'
+			response.code() == ms.ok.code
+			response.text() =~ 'google'
 	}
 
 	@Ignore
@@ -156,7 +157,7 @@ class GetUSpec extends Specification {
 				)
 			)
 		when:
-			def result = new Get (
+			def response = new Get (
 				url: url,
 				proxy: new HttpAuthProxy (
 					host: proxy.host,
@@ -180,7 +181,107 @@ class GetUSpec extends Specification {
 				)
 			)
 		and:
-			result.text() == ms.ok.body
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+	
+	def "Should read the proper proxy settings from the environment when no proxy is specified"() {
+		given:
+			def path = '/environment/proxy/path'
+		and:
+			def url = "${ms.origin}${path}".toURL()
+		and:
+			proxy.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					aResponse()
+					.proxiedFrom(ms.origin)
+				)
+			)
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+		and:
+			new Environment (
+				http_proxy: 'http://localhost:8080',
+			).insert()
+
+		when:
+			def response = new Get (
+				url: url
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			proxy.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should avoid using the env proxy when a host matches the hosts in 'no_proxy'"() {
+		given:
+			def path = '/environment/no_proxy/path'
+		and:
+			def url = "${ms.origin}${path}".toURL()
+		and:
+			proxy.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					aResponse()
+					.proxiedFrom(ms.origin)
+				)
+			)
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+		and:
+			new Environment (
+				http_proxy: 'http://localhost:8080',
+				no_proxy: 'localhost'
+			).insert()
+
+		when:
+			def response = new Get (
+				url: url
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			proxy.verify (
+				0,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 }

@@ -40,6 +40,7 @@ class CacheUSpec extends Specification {
 			1 * get.connect() >> response
 			1 * cacheContainer.write(response.text()) >> null
 		and:
+			actualResult.code() == 200
 			actualResult.text() == content
 		and: 'the miss operation is executed once'
 			missCounter == 1
@@ -50,6 +51,7 @@ class CacheUSpec extends Specification {
 			1 * cacheContainer.valid(_) >> true
 			1 * cacheContainer.content() >> content
 		and:
+			cacheResult.code() == 200
 			cacheResult.text() == content
 		and: 'the miss operation has not been executed'
 			missCounter == 1
