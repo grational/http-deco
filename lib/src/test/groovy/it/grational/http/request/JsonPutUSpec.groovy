@@ -2,7 +2,7 @@ package it.grational.http.request
 
 import spock.lang.*
 import groovy.json.JsonOutput
-import support.MockServer
+import it.grational.specification.MockServer
 
 // wiremock imports
 import static com.github.tomakehurst.wiremock.client.WireMock.*
