@@ -23,7 +23,8 @@ project.ext {
 	slf4jVersion           = '1.7.32'
 	cacheContainersVersion = 'release-1.0.0'
 	urlDecoratorsVersion   = 'release-1.0.1'
-	wiremockVersion        = '2.27.2'
+	proxyEnvVersion        = 'release-1.2.1' 
+	specSupportVersion     = 'release-0.1.5'
 }
 
 scmVersion {
@@ -60,13 +61,14 @@ dependencies {
 	api (
 		"com.github.grational:cache-containers:$cacheContainersVersion",
 		"org.codehaus.groovy:groovy-json:$groovyVersion",
-		"com.github.grational:url-decorators:$urlDecoratorsVersion"
+		"com.github.grational:url-decorators:$urlDecoratorsVersion",
+		"com.github.grational:proxy-environment:$proxyEnvVersion"
 	)
 
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
 		"org.spockframework:spock-core:$spockVersion",
-		"com.github.tomakehurst:wiremock:$wiremockVersion"
+		"com.github.grational:specification-support:$specSupportVersion"
 	)
 }
 
