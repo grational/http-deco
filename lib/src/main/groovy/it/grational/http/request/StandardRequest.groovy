@@ -1,6 +1,9 @@
 package it.grational.http.request
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
+import it.grational.proxy.NoProxy
+import it.grational.proxy.EnvVar
+import it.grational.proxy.EnvProxy
 
 /**
  * StandardRequest
@@ -20,7 +23,7 @@ abstract class StandardRequest implements HttpRequest {
 	HttpResponse connect() {
 		Response result
 
-		this.url.openConnection(this.proxy).with {
+		this.url.openConnection(proxyFromEnvironment()).with {
 			requestMethod = this.method
 
 			if (this.parameters.connectTimeout)
@@ -58,6 +61,21 @@ abstract class StandardRequest implements HttpRequest {
 				stream: inputStream
 			)
 		}
+		return result
+	}
+
+	private Proxy proxyFromEnvironment() {
+		Proxy result
+
+		if (this.proxy)
+			result = this.proxy
+		else if ( new NoProxy().exclude(this.url) )
+			result = Proxy.NO_PROXY
+		else
+			result = new EnvProxy (
+				EnvVar.byURL(this.url).value(),
+			).proxy()
+
 		return result
 	}
 

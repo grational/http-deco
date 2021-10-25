@@ -27,7 +27,7 @@ class Get extends StandardRequest {
 		this.method = 'GET'
 		this.url = url
 		this.parameters = params ?: [:]
-		this.proxy = proxy ?: Proxy.NO_PROXY
+		this.proxy = proxy
 	}
 
 	/**

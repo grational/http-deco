@@ -21,7 +21,7 @@ class Put extends StandardRequest {
 		this.url = url
 		this.body = body
 		this.parameters = params ?: [:]
-		this.proxy = proxy ?: Proxy.NO_PROXY
+		this.proxy = proxy
 	}
 
 	/**

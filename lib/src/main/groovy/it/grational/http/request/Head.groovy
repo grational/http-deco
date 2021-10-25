@@ -27,7 +27,7 @@ class Head extends StandardRequest {
 		this.method = 'HEAD'
 		this.url = url
 		this.parameters = params ?: [:]
-		this.proxy = proxy ?: Proxy.NO_PROXY
+		this.proxy = proxy
 	}
 
 	/**

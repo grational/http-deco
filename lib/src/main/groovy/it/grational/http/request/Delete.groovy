@@ -27,7 +27,7 @@ class Delete extends StandardRequest {
 		this.method = 'DELETE'
 		this.url = url
 		this.parameters = params ?: [:]
-		this.proxy = proxy ?: Proxy.NO_PROXY
+		this.proxy = proxy
 	}
 
 	/**
