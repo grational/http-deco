@@ -13,7 +13,7 @@ plugins {
 	// required by jitpack
 	id 'maven-publish'
 	// awesome git tag / gradle version integration
-	id 'pl.allegro.tech.build.axion-release' version '1.13.5'
+	id 'pl.allegro.tech.build.axion-release' version '1.13.6'
 }
 
 // [general] configuration
@@ -22,7 +22,7 @@ project.ext {
 	spockVersion           = '2.0-groovy-3.0'
 	slf4jVersion           = '1.7.32'
 	cacheContainersVersion = 'release-1.0.0'
-	urlDecoratorsVersion   = 'release-1.0.1'
+	urlDecoratorsVersion   = 'release-2.0.0'
 	proxyEnvVersion        = 'release-1.2.1' 
 	specSupportVersion     = 'release-0.1.5'
 }
