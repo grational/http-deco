@@ -3,6 +3,7 @@ package it.grational.http.request
 import spock.lang.*
 import it.grational.http.header.Authorization
 import it.grational.specification.MockServer
+import it.grational.url.StructuredURL
 
 // wiremock imports
 import static com.github.tomakehurst.wiremock.client.WireMock.*
@@ -73,6 +74,69 @@ class PostUSpec extends Specification {
 				1,
 				postRequestedFor (
 					urlPathEqualTo(ms.path)
+				)
+				.withBasicAuth (
+					new BasicCredentials (
+						user,
+						pass
+					)
+				)
+				.withHeader (
+					'Content-Type',
+					equalTo(contentTypeHeader)
+				)
+				.withHeader (
+					"Accept",
+					equalTo(acceptHeader)
+				)
+				.withRequestBody (
+					equalToJson(inputBody)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should hit the target endpoint using an authenticated POST request with a body"() {
+		given:
+			String authPath = '/another/authenticated/path'
+			String inputBody = '{"id":1,"add":1.0}'
+		and:
+			String user = 'user'
+			String pass = 'pass'
+			String contentTypeHeader = 'application/json'
+			String acceptHeader = 'application/json'
+		and:
+  		ms.stubFor (
+				post(urlPathEqualTo(authPath))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+
+		when:
+			def response = new Post (
+				url: new StructuredURL (
+					protocol: ms.protocol,
+					username: user,
+					password: pass,
+					authority: ms.authority,
+					path: authPath
+				).toURL(),
+				body: inputBody,
+				headers: [
+					'Content-Type': contentTypeHeader,
+					Accept: acceptHeader
+				]
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				postRequestedFor (
+					urlPathEqualTo(authPath)
 				)
 				.withBasicAuth (
 					new BasicCredentials (

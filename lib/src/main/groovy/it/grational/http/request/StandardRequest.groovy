@@ -4,6 +4,7 @@ import it.grational.http.response.HttpResponse
 import it.grational.proxy.NoProxy
 import it.grational.proxy.EnvVar
 import it.grational.proxy.EnvProxy
+import it.grational.http.header.Authorization
 
 /**
  * StandardRequest
@@ -43,6 +44,9 @@ abstract class StandardRequest implements HttpRequest {
 					this.parameters.useCaches
 				)
 
+			if (this.url.userInfo)
+				this.parameters.headers << this.addBasicAuth(this.url.userInfo)
+
 			this.parameters.headers.each { k, v ->
 				setRequestProperty(k,v)
 			}
@@ -77,6 +81,15 @@ abstract class StandardRequest implements HttpRequest {
 			).proxy()
 
 		return result
+	}
+
+	protected Map addBasicAuth(String userInfo) {
+		def (user,pass) = userInfo.tokenize(':')
+		def auth = new Authorization (
+			username: user,
+			password: pass
+		)
+		return [ (auth.name()): auth.value() ]
 	}
 
 	@Override
