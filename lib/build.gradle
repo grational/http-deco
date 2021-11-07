@@ -24,7 +24,7 @@ project.ext {
 	cacheContainersVersion = 'release-1.0.0'
 	urlDecoratorsVersion   = 'release-2.0.0'
 	proxyEnvVersion        = 'release-1.2.1' 
-	specSupportVersion     = 'release-0.1.5'
+	specSupportVersion     = 'release-0.1.6'
 }
 
 scmVersion {
