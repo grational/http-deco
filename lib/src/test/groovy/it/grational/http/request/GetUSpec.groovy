@@ -9,6 +9,8 @@ import it.grational.http.proxy.HttpProxy
 import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials
+
 class GetUSpec extends Specification {
 
 	@Shared MockServer ms
@@ -277,6 +279,47 @@ class GetUSpec extends Specification {
 				0,
 				getRequestedFor (
 					urlPathEqualTo(path)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	@IgnoreRest
+	def "Should leverage the user info coming directly from the URL object"() {
+		given:
+			Map credentials = [
+				user: 'username',
+				pass: 'password'
+			]
+			String userInfo = "${credentials.user}:${credentials.pass}"
+		and:
+			URL url = "${ms.protocol}://${userInfo}@${ms.authority}${ms.path}".toURL()
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(ms.path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get (
+				url: url
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+				.withBasicAuth (
+					new BasicCredentials (
+						credentials.user,
+						credentials.pass
+					)
 				)
 			)
 		and:

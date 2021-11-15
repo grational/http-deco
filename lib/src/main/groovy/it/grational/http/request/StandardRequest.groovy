@@ -43,9 +43,12 @@ abstract class StandardRequest implements HttpRequest {
 				setUseCaches ( // boolean
 					this.parameters.useCaches
 				)
+			if (!this.parameters.headers)
+				this.parameters.headers = [:]
 
-			if (this.url.userInfo)
+			if (this.url.userInfo) {
 				this.parameters.headers << this.addBasicAuth(this.url.userInfo)
+			}
 
 			this.parameters.headers.each { k, v ->
 				setRequestProperty(k,v)
