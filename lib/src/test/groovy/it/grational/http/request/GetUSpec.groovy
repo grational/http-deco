@@ -286,7 +286,6 @@ class GetUSpec extends Specification {
 			response.text() == ms.ok.body
 	}
 
-	@IgnoreRest
 	def "Should leverage the user info coming directly from the URL object"() {
 		given:
 			Map credentials = [
@@ -305,9 +304,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			HttpResponse response = new Get (
-				url: url
-			).connect()
+			HttpResponse response = new Get(url).connect()
 
 		then:
 			ms.verify (
