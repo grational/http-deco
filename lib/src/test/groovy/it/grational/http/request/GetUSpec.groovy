@@ -304,7 +304,11 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			HttpResponse response = new Get(url).connect()
+			def get = new Get (
+				url: url,
+				headers: [test: 'test']
+			)
+			HttpResponse response = get.connect()
 
 		then:
 			ms.verify (
@@ -318,6 +322,38 @@ class GetUSpec extends Specification {
 						credentials.pass
 					)
 				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should correctly add the cookies to the request"() {
+		given:
+			ms.stubFor (
+				get(urlPathEqualTo(ms.path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(
+				url: ms.url,
+				cookies: [
+					first_cookie: 'first cookie value',
+					second_cookie: 'second cookie value'
+				]
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+				.withCookie('first_cookie', matching('first cookie value'))
+				.withCookie('second_cookie', matching('second cookie value'))
 			)
 		and:
 			response.code() == ms.ok.code

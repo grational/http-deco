@@ -46,13 +46,15 @@ abstract class StandardRequest implements HttpRequest {
 			if (!this.parameters.headers)
 				this.parameters.headers = [:]
 
-			if (this.url.userInfo) {
+			if (this.url.userInfo)
 				this.parameters.headers << this.addBasicAuth(this.url.userInfo)
-			}
 
 			this.parameters.headers.each { k, v ->
 				setRequestProperty(k,v)
 			}
+
+			if (this.parameters.cookies)
+				setRequestProperty('Cookie',assembleCookies(this.parameters.cookies))
 
 			if (this.body) {
 				doOutput = true
@@ -93,6 +95,10 @@ abstract class StandardRequest implements HttpRequest {
 			password: pass
 		)
 		return [ (auth.name()): auth.value() ]
+	}
+
+	protected String assembleCookies(Map cookies) {
+		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
 	}
 
 	@Override

@@ -25,6 +25,7 @@ class JsonPost extends Post {
 			headers: ( params.headers ?: [:] ) << [
 				'Content-Type': 'application/json',
 			],
+			cookies: params.cookies,
 			proxy: params.proxy
 		)
 	}

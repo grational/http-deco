@@ -25,6 +25,7 @@ class JsonPut extends Put {
 			headers: ( params.headers ?: [:] ) << [
 				'Content-Type': 'application/json',
 			],
+			cookies: params.cookies,
 			proxy: params.proxy
 		)
 	}

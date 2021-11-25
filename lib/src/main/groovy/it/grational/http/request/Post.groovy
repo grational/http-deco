@@ -45,7 +45,8 @@ class Post extends StandardRequest {
 			(params.parameters ?: [:]) << [
 				connectTimeout: params.connectTimeout,
 				readTimeout: params.readTimeout,
-				headers: params.headers
+				headers: params.headers,
+				cookies: params.cookies
 			],
 			params.proxy
 		)
