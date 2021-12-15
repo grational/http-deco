@@ -21,10 +21,10 @@ project.ext {
 	groovyVersion          = '2.5.15'
 	spockVersion           = '2.0-groovy-2.5'
 	slf4jVersion           = '1.7.32'
-	cacheContainersVersion = 'release-1.0.0'
-	urlDecoratorsVersion   = 'release-2.0.1'
-	proxyEnvVersion        = 'release-1.2.3' 
-	specSupportVersion     = 'release-0.1.6'
+	cacheContainersVersion = 'groovy-v2.x-SNAPSHOT'
+	urlDecoratorsVersion   = 'groovy-v2.x-SNAPSHOT'
+	proxyEnvVersion        = 'groovy-v2.x-SNAPSHOT'
+	specSupportVersion     = 'groovy-v2.x-SNAPSHOT'
 }
 
 scmVersion {
