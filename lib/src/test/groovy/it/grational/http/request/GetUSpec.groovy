@@ -360,4 +360,34 @@ class GetUSpec extends Specification {
 			response.text() == ms.ok.body
 	}
 
+	def "Should be capable of catching the server error message"() {
+		given:
+			def error = [
+				code: 500,
+				message: 'server error'
+			]
+			ms.stubFor (
+				get(urlPathEqualTo(ms.path))
+				.willReturn (
+					aResponse()
+					.withStatus(error.code)
+					.withBody(error.message)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(ms.url).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+			)
+		and:
+			response.code() == error.code
+			response.text() == error.message
+	}
+
 }

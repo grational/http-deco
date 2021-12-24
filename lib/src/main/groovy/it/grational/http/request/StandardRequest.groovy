@@ -9,7 +9,7 @@ import it.grational.http.header.Authorization
 /**
  * StandardRequest
  * This class is not instantiable since it requires some members to be defined.
- * The subclasses StandardGet/Head/Delete/Post/Put define what is needed and they
+ * The subclasses Get/Head/Delete/Post/Put define what is needed and they
  * are, therefore, instantiable.
  */
 abstract class StandardRequest implements HttpRequest {
@@ -56,19 +56,25 @@ abstract class StandardRequest implements HttpRequest {
 			if (this.parameters.cookies)
 				setRequestProperty('Cookie',assembleCookies(this.parameters.cookies))
 
-			if (this.body) {
-				doOutput = true
-				outputStream.withWriter { writer ->
-					writer.write(this.body)
+			try {
+				if (this.body) {
+					doOutput = true
+					outputStream.withWriter { writer ->
+						writer.write(this.body)
+					}
+				} else {
+					connect()
 				}
-			} else {
-				connect()
+				result = new Response (
+					code: responseCode,
+					stream: inputStream
+				)
+			} catch (e) {
+				result = new Response (
+					code: responseCode,
+					stream: errorStream
+				)
 			}
-
-			result = new Response (
-				code: responseCode,
-				stream: inputStream
-			)
 		}
 		return result
 	}
