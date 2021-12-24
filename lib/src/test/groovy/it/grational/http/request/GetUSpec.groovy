@@ -338,7 +338,7 @@ class GetUSpec extends Specification {
 			)
 
 		when:
-			HttpResponse response = new Get(
+			HttpResponse response = new Get (
 				url: ms.url,
 				cookies: [
 					first_cookie: 'first cookie value',
@@ -364,25 +364,29 @@ class GetUSpec extends Specification {
 		given:
 			def error = [
 				code: 500,
-				message: 'server error'
+				message: 'server error',
+				path: '/error/path'
 			]
+		and:
 			ms.stubFor (
-				get(urlPathEqualTo(ms.path))
+				get(urlPathEqualTo(error.path))
 				.willReturn (
 					aResponse()
 					.withStatus(error.code)
 					.withBody(error.message)
 				)
 			)
+		and:
+			def url = "${ms.origin}${error.path}".toURL()
 
 		when:
-			HttpResponse response = new Get(ms.url).connect()
+			HttpResponse response = new Get(url).connect()
 
 		then:
 			ms.verify (
 				1,
 				getRequestedFor (
-					urlPathEqualTo(ms.path)
+					urlPathEqualTo(error.path)
 				)
 			)
 		and:
