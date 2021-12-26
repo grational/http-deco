@@ -10,6 +10,7 @@ import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials
+import it.grational.http.response.Stream
 
 class GetUSpec extends Specification {
 
@@ -391,7 +392,7 @@ class GetUSpec extends Specification {
 			)
 		and:
 			response.code() == error.code
-			response.text() == error.message
+			response.text(Stream.ERROR) == error.message
 	}
 
 }

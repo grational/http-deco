@@ -56,25 +56,18 @@ abstract class StandardRequest implements HttpRequest {
 			if (this.parameters.cookies)
 				setRequestProperty('Cookie',assembleCookies(this.parameters.cookies))
 
-			try {
-				if (this.body) {
-					doOutput = true
-					outputStream.withWriter(charset) { writer ->
-						writer.write(this.body)
-					}
-				} else {
-					connect()
+			if (this.body) {
+				doOutput = true
+				outputStream.withWriter(charset) { writer ->
+					writer.write(this.body)
 				}
-				result = new Response (
-					code: responseCode,
-					stream: inputStream
-				)
-			} catch (e) {
-				result = new Response (
-					code: responseCode,
-					stream: copyStream(errorStream, charset)
-				)
+			} else {
+				connect()
 			}
+			result = new Response (
+				code: responseCode,
+				connection: delegate
+			)
 		}
 		return result
 	}
@@ -105,15 +98,6 @@ abstract class StandardRequest implements HttpRequest {
 
 	protected String assembleCookies(Map cookies) {
 		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
-	}
-
-	protected InputStream copyStream (
-		InputStream stream,
-		String charset
-	) {
-		return new ByteArrayInputStream (
-			stream.getText(charset).getBytes(charset)
-		)
 	}
 
 	@Override

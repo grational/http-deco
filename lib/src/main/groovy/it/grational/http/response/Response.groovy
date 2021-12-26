@@ -2,8 +2,7 @@ package it.grational.http.response
 
 class Response implements HttpResponse {
 	private Integer code
-	@Delegate
-	private InputStream stream
+	private URLConnection connection
 
 	@Override
 	Integer code() {
@@ -11,13 +10,23 @@ class Response implements HttpResponse {
 	}
 
 	@Override 
-	String text(String charset = 'UTF-8') { 
-		this.stream.getText(charset)
+	String text (
+		Stream source = Stream.INPUT,
+		String charset = 'UTF-8'
+	) { 
+		fromSource(source).getText(charset)
 	}
 
 	@Override
-	byte[] bytes(String charset = 'UTF-8') {
-		this.stream.getBytes(charset)
+	byte[] bytes (
+		Stream source = Stream.INPUT,
+		String charset = 'UTF-8'
+	) {
+		fromSource(source).getText(charset)
+	}
+
+	private InputStream fromSource(Stream source) {
+		(source == Stream.INPUT) ? this.connection.inputStream : this.connection.errorStream
 	}
 
 }
