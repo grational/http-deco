@@ -5,8 +5,19 @@ class Response implements HttpResponse {
 	@Delegate
 	private InputStream stream
 
-	@Override Integer code()  { this.code }
-	@Override String  text()  { this.stream.text }
-	@Override byte[]  bytes() { this.stream.bytes }
+	@Override
+	Integer code() {
+		this.code
+	}
+
+	@Override 
+	String text(String charset = 'UTF-8') { 
+		this.stream.getText(charset)
+	}
+
+	@Override
+	byte[] bytes(String charset = 'UTF-8') {
+		this.stream.getBytes(charset)
+	}
 
 }

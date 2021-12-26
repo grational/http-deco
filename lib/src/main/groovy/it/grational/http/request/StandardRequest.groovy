@@ -21,7 +21,7 @@ abstract class StandardRequest implements HttpRequest {
 	protected Proxy     proxy
 
 	@Override
-	HttpResponse connect() {
+	HttpResponse connect(String charset = 'UTF-8') {
 		Response result
 
 		this.url.openConnection(proxyFromEnvironment()).with {
@@ -59,7 +59,7 @@ abstract class StandardRequest implements HttpRequest {
 			try {
 				if (this.body) {
 					doOutput = true
-					outputStream.withWriter { writer ->
+					outputStream.withWriter(charset) { writer ->
 						writer.write(this.body)
 					}
 				} else {
@@ -72,7 +72,7 @@ abstract class StandardRequest implements HttpRequest {
 			} catch (e) {
 				result = new Response (
 					code: responseCode,
-					stream: errorStream
+					stream: copyStream(errorStream, charset)
 				)
 			}
 		}
@@ -105,6 +105,15 @@ abstract class StandardRequest implements HttpRequest {
 
 	protected String assembleCookies(Map cookies) {
 		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
+	}
+
+	protected InputStream copyStream (
+		InputStream stream,
+		String charset
+	) {
+		return new ByteArrayInputStream (
+			stream.getText(charset).getBytes(charset)
+		)
 	}
 
 	@Override
