@@ -29,4 +29,10 @@ class Response implements HttpResponse {
 		(source == Stream.INPUT) ? this.connection.inputStream : this.connection.errorStream
 	}
 
+	@Override
+	String cookie(String name) {
+		this.connection.headerFields.get('Set-Cookie').find { cookie ->
+			cookie.startsWith("${name}=")
+		}
+	}
 }

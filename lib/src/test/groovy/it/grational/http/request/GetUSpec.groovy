@@ -395,4 +395,55 @@ class GetUSpec extends Specification {
 			response.text(Stream.ERROR) == error.message
 	}
 
+	def "Should be capable of retrieving the cookies set by the server"() {
+		given:
+			def cookies = [
+				first: [
+					name: 'first_name',
+					value: 'first_value',
+				],
+				second: [
+					name: 'second_name',
+					value: 'second_value'
+				]
+			]
+		and:
+			def setCookiesPath = '/set/cookies/path'
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(setCookiesPath))
+				.willReturn (
+					okJson(ms.ok.body)
+					.withHeader (
+						'Set-Cookie',
+						"${cookies.first.name}=${cookies.first.value}"
+					)
+					.withHeader (
+						'Set-Cookie',
+						"${cookies.second.name}=${cookies.second.value}"
+					)
+				)
+			)
+		and:
+			def url = "${ms.origin}${setCookiesPath}".toURL()
+
+		when:
+			HttpResponse response = new Get(url).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(setCookiesPath)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+		and:
+			response.cookie(cookies.first.name) == "${cookies.first.name}=${cookies.first.value}"
+		and:
+			response.cookie(cookies.second.name) == "${cookies.second.name}=${cookies.second.value}"
+	}
+
 }

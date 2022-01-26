@@ -4,6 +4,7 @@ interface HttpResponse {
 	Integer code()
 	String  text()
 	byte[]  bytes()
+	String cookie(String name)
 
 	/**
 	 * Fake class modelling an example ok response
@@ -28,6 +29,11 @@ interface HttpResponse {
 		@Override
 		byte[] bytes() {
 			this.stream.bytes
+		}
+
+		@Override
+		String cookie(String name) {
+			"cookieName=cookieValue"
 		}
 	}
 
