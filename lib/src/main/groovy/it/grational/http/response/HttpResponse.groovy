@@ -4,7 +4,7 @@ interface HttpResponse {
 	Integer code()
 	String  text()
 	byte[]  bytes()
-	String cookie(String name)
+	HttpCookie cookie(String name)
 
 	/**
 	 * Fake class modelling an example ok response
@@ -32,8 +32,11 @@ interface HttpResponse {
 		}
 
 		@Override
-		String cookie(String name) {
-			"cookieName=cookieValue"
+		HttpCookie cookie(String name) {
+			new HttpCookie (
+				name,
+				'value'
+			)
 		}
 	}
 

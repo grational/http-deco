@@ -13,7 +13,7 @@ class Response implements HttpResponse {
 	String text (
 		Stream source = Stream.INPUT,
 		String charset = 'UTF-8'
-	) { 
+	) {
 		fromSource(source).getText(charset)
 	}
 
@@ -30,9 +30,9 @@ class Response implements HttpResponse {
 	}
 
 	@Override
-	String cookie(String name) {
-		this.connection.headerFields.get('Set-Cookie').find { cookie ->
-			cookie.startsWith("${name}=")
+	HttpCookie cookie(String name) {
+		CookieHandler.default.cookieStore.cookies.find { cookie ->
+			cookie.name == name
 		}
 	}
 }

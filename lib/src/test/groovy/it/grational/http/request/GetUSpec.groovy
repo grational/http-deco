@@ -441,9 +441,11 @@ class GetUSpec extends Specification {
 			response.code() == ms.ok.code
 			response.text() == ms.ok.body
 		and:
-			response.cookie(cookies.first.name) == "${cookies.first.name}=${cookies.first.value}"
+			def firstCookie = response.cookie(cookies.first.name) 
+			firstCookie.toString() == "${cookies.first.name}=${cookies.first.value}"
 		and:
-			response.cookie(cookies.second.name) == "${cookies.second.name}=${cookies.second.value}"
+			def secondCookie = response.cookie(cookies.second.name) 
+			secondCookie.toString() == "${cookies.second.name}=${cookies.second.value}"
 	}
 
 }

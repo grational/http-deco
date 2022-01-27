@@ -24,6 +24,8 @@ abstract class StandardRequest implements HttpRequest {
 	HttpResponse connect(String charset = 'UTF-8') {
 		Response result
 
+		enableCookieManagementIfNeeded()
+
 		this.url.openConnection(proxyFromEnvironment()).with {
 			requestMethod = this.method
 
@@ -70,6 +72,14 @@ abstract class StandardRequest implements HttpRequest {
 			)
 		}
 		return result
+	}
+
+	private void enableCookieManagementIfNeeded() {
+		if ( !CookieHandler.default ) {
+			CookieManager cm = new CookieManager()
+			cm.cookiePolicy = CookiePolicy.ACCEPT_ALL
+			CookieHandler.default = cm
+		}
 	}
 
 	private Proxy proxyFromEnvironment() {
