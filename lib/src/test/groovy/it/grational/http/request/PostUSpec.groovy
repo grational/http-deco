@@ -161,7 +161,7 @@ class PostUSpec extends Specification {
 			response.text() == ms.ok.body
 	}
 
-	def "Should be capable of interrupting a connection when it is slowen then the read timeout"() {
+	def "Should be capable of interrupting a connection when it is slower then the read timeout"() {
 		given:
 			String delayedPath = '/more/delayed/path'
 			URL delayedUrl = "${ms.origin}${delayedPath}".toURL()
