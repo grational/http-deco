@@ -7,7 +7,7 @@ class Delete extends StandardRequest {
 	 * @param URL the URL to connect to
 	 */
 	Delete(URL url) {
-		this(url,[:],Proxy.NO_PROXY)
+		this(url,[:],null)
 	}
 
 	/**

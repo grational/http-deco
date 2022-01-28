@@ -7,7 +7,7 @@ class Head extends StandardRequest {
 	 * @param URL the URL to connect to
 	 */
 	Head(URL url) {
-		this(url,[:],Proxy.NO_PROXY)
+		this(url,[:],null)
 	}
 
 	/**

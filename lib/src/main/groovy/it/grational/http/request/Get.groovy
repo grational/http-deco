@@ -7,7 +7,7 @@ class Get extends StandardRequest {
 	 * @param URL the URL to connect to
 	 */
 	Get(URL url) {
-		this(url,[:],Proxy.NO_PROXY)
+		this(url,[:],null)
 	}
 
 	/**
