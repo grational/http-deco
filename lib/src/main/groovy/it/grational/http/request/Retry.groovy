@@ -32,20 +32,6 @@ class Retry implements HttpRequest {
 		}
 	}
 
-	String text() {
-		for ( Integer time = 1; time <= retries; time++ ) {
-			try {
-				return this.origin.text()
-			}
-			catch (IOException ioe) {
-				if (time < retries)
-					this.retryOperation.call(time, retries)
-				else
-					throw new RuntimeException("Retry limit (${retries}) exceeded for connection '${this.origin.toString()}'", ioe)
-			}
-		}
-	}
-
 	@Override
 	String toString() {
 		this.origin.toString()
