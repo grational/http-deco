@@ -9,7 +9,7 @@ class Response implements HttpResponse {
 		this.code
 	}
 
-	@Override 
+	@Override
 	String text (
 		Stream source = Stream.INPUT,
 		String charset = 'UTF-8'

@@ -53,12 +53,12 @@ repositories {
 
 dependencies {
 	implementation (
-		"org.codehaus.groovy:groovy:$groovyVersion",
-		"org.codehaus.groovy:groovy-json:$groovyVersion",
 		"org.slf4j:slf4j-api:$slf4jVersion"
 	)
 
 	api (
+		"org.codehaus.groovy:groovy:$groovyVersion",
+		"org.codehaus.groovy:groovy-json:$groovyVersion",
 		"com.github.grational:cache-containers:$cacheContainersVersion",
 		"com.github.grational:url-decorators:$urlDecoratorsVersion",
 		"com.github.grational:proxy-environment:$proxyEnvVersion"
