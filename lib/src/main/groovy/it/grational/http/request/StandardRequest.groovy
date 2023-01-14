@@ -1,10 +1,13 @@
 package it.grational.http.request
+
+import static java.nio.charset.StandardCharsets.*
+
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
+import it.grational.http.header.Authorization
 import it.grational.proxy.NoProxy
 import it.grational.proxy.EnvVar
 import it.grational.proxy.EnvProxy
-import it.grational.http.header.Authorization
 
 /**
  * StandardRequest
@@ -21,7 +24,7 @@ abstract class StandardRequest implements HttpRequest {
 	protected Proxy     proxy
 
 	@Override
-	HttpResponse connect(String charset = 'UTF-8') {
+	HttpResponse connect(String charset = UTF_8.name()) {
 		Response result
 
 		enableCookieManagementIfNeeded()

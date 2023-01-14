@@ -1,5 +1,7 @@
 package it.grational.http.response
 
+import static java.nio.charset.StandardCharsets.*
+
 class Response implements HttpResponse {
 	private Integer code
 	private URLConnection connection
@@ -12,7 +14,7 @@ class Response implements HttpResponse {
 	@Override
 	String text (
 		Stream source = Stream.INPUT,
-		String charset = 'UTF-8'
+		String charset = UTF_8.name()
 	) {
 		fromSource(source).getText(charset)
 	}
@@ -20,7 +22,7 @@ class Response implements HttpResponse {
 	@Override
 	byte[] bytes (
 		Stream source = Stream.INPUT,
-		String charset = 'UTF-8'
+		String charset = UTF_8.name()
 	) {
 		fromSource(source).getText(charset)
 	}

@@ -1,9 +1,13 @@
 package it.grational.http.request
 
 import java.time.Duration
+import static java.nio.charset.StandardCharsets.*
+import static java.net.HttpURLConnection.*
+
 import it.grational.cache.CacheContainer
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
+import it.grational.http.response.Stream
 
 class Cache implements HttpRequest {
 
@@ -12,6 +16,7 @@ class Cache implements HttpRequest {
 	private final Duration       leaseTime
 	private final Closure        missOperation
 	private final Boolean        missOpBefore
+	private final String         separator = '\n'
 
 	Cache (
 		HttpRequest org,
@@ -31,17 +36,26 @@ class Cache implements HttpRequest {
 	HttpResponse connect() {
 		HttpResponse response
 		if ( this.cacheContainer.valid(this.leaseTime) ) {
-			response = new HttpResponse.OkResponse (
-				new ByteArrayInputStream (
-					this.cacheContainer.content().getBytes()
-				)
+			List cacheLines = this.cacheLines()
+			response = new HttpResponse.CustomResponse (
+				this.cachedCode(cacheLines),
+				this.cachedContent(cacheLines)
 			)
 		} else {
 			if ( this.missOpBefore )
 				this.missOperation()
 
 			response = this.origin.connect()
-			this.cacheContainer.write(response.text())
+			Stream source = (response.code() == HTTP_OK)
+			              ? Stream.INPUT
+			              : Stream.ERROR
+
+				this.cacheContainer.write (
+					this.joinedResponse (
+						source,
+						response
+					)
+				)
 
 			if ( ! this.missOpBefore )
 				this.missOperation()
@@ -52,6 +66,33 @@ class Cache implements HttpRequest {
 	@Override
 	String toString() {
 		this.origin.toString()
+	}
+
+	private List<String> cacheLines() {
+		this.cacheContainer
+			.content()
+			.readLines()
+	}
+
+	private Integer cachedCode(List lines) {
+		lines.first() as Integer
+	}
+
+	private ByteArrayInputStream cachedContent(List lines) {
+		new ByteArrayInputStream (
+			lines.drop(1).join(this.separator).getBytes()
+		)
+	}
+
+	private String joinedResponse (
+		Stream source,
+		HttpResponse response
+	) {
+		String.join (
+			this.separator,
+			response.code() as String,
+			response.text(source, UTF_8.name())
+		)
 	}
 
 }

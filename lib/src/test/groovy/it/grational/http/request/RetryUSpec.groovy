@@ -2,6 +2,7 @@ package it.grational.http.request
 
 import spock.lang.*
 import it.grational.http.response.HttpResponse
+import static java.net.HttpURLConnection.*
 
 class RetryUSpec extends Specification {
 
@@ -10,7 +11,8 @@ class RetryUSpec extends Specification {
 	@Shared Integer retries = 3
 	@Shared String url = 'https://www.google.it'
 	@Shared String expectedContent = 'Google homepage content'
-	@Shared HttpResponse okResponse = new HttpResponse.OkResponse (
+	@Shared HttpResponse okResponse = new HttpResponse.CustomResponse (
+		HTTP_OK,
 		new ByteArrayInputStream (
 			expectedContent.bytes
 		)
@@ -37,7 +39,7 @@ class RetryUSpec extends Specification {
 		and: 'no exception is thrown'
 			notThrown(RuntimeException)
 		and: 'the expected content is retrieved'
-			actualResult.code() == 200
+			actualResult.code() == HTTP_OK
 			actualResult.text() == expectedContent
 	}
 
