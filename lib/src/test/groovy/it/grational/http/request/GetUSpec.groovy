@@ -10,7 +10,6 @@ import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials
-import it.grational.http.response.Stream
 
 class GetUSpec extends Specification {
 
@@ -390,9 +389,9 @@ class GetUSpec extends Specification {
 					urlPathEqualTo(error.path)
 				)
 			)
-		and:
+		and: 'without an explicit source tries INPUT then ERROR'
 			response.code() == error.code
-			response.text(Stream.ERROR) == error.message
+			response.text() == error.message
 	}
 
 	def "Should be capable of retrieving the cookies set by the server"() {

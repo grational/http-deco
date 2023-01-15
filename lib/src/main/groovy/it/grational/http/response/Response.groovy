@@ -1,10 +1,12 @@
 package it.grational.http.response
 
+import static java.net.HttpURLConnection.*
 import static java.nio.charset.StandardCharsets.*
 
 class Response implements HttpResponse {
 	private Integer code
 	private URLConnection connection
+	private Boolean error = false
 
 	@Override
 	Integer code() {
@@ -12,23 +14,29 @@ class Response implements HttpResponse {
 	}
 
 	@Override
-	String text (
-		Stream source = Stream.INPUT,
-		String charset = UTF_8.name()
-	) {
-		fromSource(source).getText(charset)
+	Boolean error() {
+		this.error || (this.code >= HTTP_BAD_REQUEST)
 	}
 
 	@Override
-	byte[] bytes (
-		Stream source = Stream.INPUT,
-		String charset = UTF_8.name()
-	) {
-		fromSource(source).getText(charset)
+	String text(String charset = UTF_8.name()) {
+		this.openInput().getText(charset)
 	}
 
-	private InputStream fromSource(Stream source) {
-		(source == Stream.INPUT) ? this.connection.inputStream : this.connection.errorStream
+	@Override
+	byte[] bytes() {
+		this.openInput().bytes
+	}
+
+	private InputStream openInput() {
+		InputStream result
+		try {
+			result = this.connection.inputStream 
+		} catch (e) {
+			this.error = true
+			result = this.connection.errorStream
+		}
+		return result
 	}
 
 	@Override

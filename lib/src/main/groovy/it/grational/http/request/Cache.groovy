@@ -7,7 +7,6 @@ import static java.net.HttpURLConnection.*
 import it.grational.cache.CacheContainer
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
-import it.grational.http.response.Stream
 
 class Cache implements HttpRequest {
 
@@ -16,6 +15,7 @@ class Cache implements HttpRequest {
 	private final Duration       leaseTime
 	private final Closure        missOperation
 	private final Boolean        missOpBefore
+	private final Boolean        cacheErrors
 	private final String         separator = '\n'
 
 	Cache (
@@ -23,13 +23,15 @@ class Cache implements HttpRequest {
 		CacheContainer cc,
 		Duration lt,
 		Closure mos = {},
-		Boolean mosBefore = false
+		Boolean mosBefore = false,
+		Boolean ce = false
 	) {
 		this.origin         = org
 		this.cacheContainer = cc
 		this.leaseTime      = lt
 		this.missOperation  = mos
 		this.missOpBefore   = mosBefore
+		this.cacheErrors    = ce
 	}
 
 	@Override
@@ -46,16 +48,14 @@ class Cache implements HttpRequest {
 				this.missOperation()
 
 			response = this.origin.connect()
-			Stream source = (response.code() == HTTP_OK)
-			              ? Stream.INPUT
-			              : Stream.ERROR
 
+			Boolean responseError = response.error()
+			if ( !response.error() || cacheErrors ) {
+				String joinedResponse = this.joinedResponse(response)
 				this.cacheContainer.write (
-					this.joinedResponse (
-						source,
-						response
-					)
+					joinedResponse
 				)
+			}
 
 			if ( ! this.missOpBefore )
 				this.missOperation()
@@ -84,14 +84,11 @@ class Cache implements HttpRequest {
 		)
 	}
 
-	private String joinedResponse (
-		Stream source,
-		HttpResponse response
-	) {
+	private String joinedResponse(HttpResponse response) {
 		String.join (
 			this.separator,
 			response.code() as String,
-			response.text(source, UTF_8.name())
+			response.text(UTF_8.name())
 		)
 	}
 

@@ -4,8 +4,9 @@ import static java.nio.charset.StandardCharsets.*
 
 interface HttpResponse {
 	Integer code()
-	String text(Stream source, String charset)
-	byte[] bytes(Stream source, String charset)
+	Boolean error()
+	String text(String charset)
+	byte[] bytes()
 	HttpCookie cookie(String name)
 
 	/**
@@ -14,13 +15,16 @@ interface HttpResponse {
 	final class CustomResponse implements HttpResponse {
 		private final Integer     code
 		private final InputStream stream
+		private final Boolean error
 
 		CustomResponse (
 			Integer code,
-			InputStream stream
+			InputStream stream,
+			Boolean error = false
 		) {
 			this.code = code
 			this.stream = stream
+			this.error = error
 		}
 
 		@Override
@@ -28,19 +32,18 @@ interface HttpResponse {
 			this.code
 		}
 
-		@Override
-		String text (
-			Stream source = Stream.INPUT,
-			String charset = UTF_8.name()
-		) {
-			this.stream.text
+		@Override 
+		Boolean error() {
+			this.error
 		}
 
 		@Override
-		byte[] bytes (
-			Stream source = Stream.INPUT,
-			String charset = UTF_8.name()
-		) {
+		String text(String charset = UTF_8.name()) {
+			this.stream.getText(charset)
+		}
+
+		@Override
+		byte[] bytes() {
 			this.stream.bytes
 		}
 
