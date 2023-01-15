@@ -1,7 +1,6 @@
 package it.grational.http.request
 
 import java.time.Duration
-import static java.nio.charset.StandardCharsets.*
 import static java.net.HttpURLConnection.*
 
 import it.grational.cache.CacheContainer
@@ -88,7 +87,7 @@ class Cache implements HttpRequest {
 		String.join (
 			this.separator,
 			response.code() as String,
-			response.text(UTF_8.name())
+			response.text()
 		)
 	}
 

@@ -19,7 +19,12 @@ class Response implements HttpResponse {
 	}
 
 	@Override
-	String text(String charset = UTF_8.name()) {
+	String text() {
+		this.text(UTF_8.name())
+	}
+
+	@Override
+	String text(String charset) {
 		this.openInput().getText(charset)
 	}
 

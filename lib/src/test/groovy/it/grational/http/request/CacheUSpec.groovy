@@ -3,7 +3,6 @@ package it.grational.http.request
 import spock.lang.*
 
 import java.time.Duration
-import static java.nio.charset.StandardCharsets.*
 import static java.net.HttpURLConnection.*
 
 import it.grational.cache.CacheContainer
@@ -26,7 +25,7 @@ class CacheUSpec extends Specification {
 			HttpResponse response = Mock()
 			response.code() >> { okResponse.code() }
 			response.error() >> false
-			response.text(_ as String) >> { okResponse.content() }
+			response.text() >> { okResponse.content() }
 			response.bytes() >> { okResponse.content().bytes }
 		and: 'a mocked standard get'
 			Get get = Mock()
@@ -53,7 +52,7 @@ class CacheUSpec extends Specification {
 			1 * cacheContainer.write(joinedResponse(response)) >> null
 		and:
 			actualResult.code() == HTTP_OK
-			actualResult.text(UTF_8.name()) == okResponse.content()
+			actualResult.text() == okResponse.content()
 		and: 'the miss operation is executed once'
 			missCounter == 1
 
@@ -64,7 +63,7 @@ class CacheUSpec extends Specification {
 			1 * cacheContainer.content() >> joinedResponse(response)
 		and:
 			cacheResult.code() == HTTP_OK
-			cacheResult.text(UTF_8.name()) == okResponse.content()
+			cacheResult.text() == okResponse.content()
 		and: 'the miss operation has not been executed'
 			missCounter == 1
 	}
@@ -104,7 +103,7 @@ class CacheUSpec extends Specification {
 			HttpResponse response = Mock()
 			response.code() >> { koResponse.code() }
 			response.error() >> { true }
-			response.text(_ as String) >> { koResponse.content() }
+			response.text() >> { koResponse.content() }
 			response.bytes() >> { koResponse.content().bytes }
 		and: 'a mocked standard get'
 			Get get = Mock()
@@ -134,7 +133,7 @@ class CacheUSpec extends Specification {
 		and:
 			actualResult.is(response)
 			actualResult.code() == HTTP_BAD_REQUEST
-			actualResult.text(UTF_8.name()) == koResponse.content()
+			actualResult.text() == koResponse.content()
 		and: 'the miss operation is executed once'
 			missCounter == 1
 
@@ -145,7 +144,7 @@ class CacheUSpec extends Specification {
 			1 * get.connect() >> response
 		and:
 			secondResponse.code() == HTTP_BAD_REQUEST
-			secondResponse.text(UTF_8.name()) == koResponse.content()
+			secondResponse.text() == koResponse.content()
 		and: 'the miss operation has not been executed'
 			missCounter == 2
 	}
@@ -155,7 +154,7 @@ class CacheUSpec extends Specification {
 			HttpResponse response = Mock()
 			response.code() >> { koResponse.code() }
 			response.error() >> { true }
-			response.text(_ as String) >> { koResponse.content() }
+			response.text() >> { koResponse.content() }
 			response.bytes() >> { koResponse.content().bytes }
 		and: 'a mocked standard get'
 			Get get = Mock()
@@ -190,7 +189,7 @@ class CacheUSpec extends Specification {
 		and:
 			actualResult.is(response)
 			actualResult.code() == HTTP_BAD_REQUEST
-			actualResult.text(UTF_8.name()) == koResponse.content()
+			actualResult.text() == koResponse.content()
 		and: 'the miss operation is executed once'
 			missCounter == 1
 
@@ -201,7 +200,7 @@ class CacheUSpec extends Specification {
 			1 * cacheContainer.content() >> joinedResponse(response)
 		and:
 			cachedResult.code() == HTTP_BAD_REQUEST
-			cachedResult.text(UTF_8.name()) == koResponse.content()
+			cachedResult.text() == koResponse.content()
 		and: 'the miss operation has not been executed'
 			missCounter == 1
 	}
@@ -210,7 +209,7 @@ class CacheUSpec extends Specification {
 		String.join (
 			lineSeparator,
 			response.code() as String,
-			response.text(UTF_8.name())
+			response.text()
 		)
 	}
 

@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.*
 interface HttpResponse {
 	Integer code()
 	Boolean error()
+	String text()
 	String text(String charset)
 	byte[] bytes()
 	HttpCookie cookie(String name)
@@ -38,7 +39,12 @@ interface HttpResponse {
 		}
 
 		@Override
-		String text(String charset = UTF_8.name()) {
+		String text() {
+			this.text(UTF_8.name())
+		}
+
+		@Override
+		String text(String charset) {
 			this.stream.getText(charset)
 		}
 
