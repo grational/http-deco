@@ -41,11 +41,7 @@ class Cache implements HttpRequest {
 	HttpResponse connect() {
 		HttpResponse response
 		if ( this.cacheContainer.valid(this.leaseTime) ) {
-			List cacheLines = this.cacheLines()
-			response = new HttpResponse.CustomResponse (
-				this.cachedCode(cacheLines),
-				this.cachedContent(cacheLines)
-			)
+			response = this.cachedResponse()
 		} else {
 			if ( this.missOpBefore )
 				this.missOperation()
@@ -58,12 +54,22 @@ class Cache implements HttpRequest {
 				this.cacheContainer.write (
 					joinedResponse
 				)
+				response = this.cachedResponse()
 			}
 
 			if ( ! this.missOpBefore )
 				this.missOperation()
 		}
+
 		return response
+	}
+
+	private HttpResponse cachedResponse() {
+		List cacheLines = this.cacheLines()
+		return new HttpResponse.CustomResponse (
+			this.cachedCode(cacheLines),
+			this.cachedContent(cacheLines)
+		)
 	}
 
 	@Override

@@ -27,6 +27,8 @@ class CacheUSpec extends Specification {
 			response.error() >> false
 			response.text() >> { okResponse.content() }
 			response.bytes() >> { okResponse.content().bytes }
+		and:
+			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
 			Get get = Mock()
 			get.connect() >> response
@@ -49,7 +51,8 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the actual response the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			1 * cacheContainer.write(joinedResponse(response)) >> null
+			1 * cacheContainer.write(joinedResponse) >> null
+			1 * cacheContainer.content() >> joinedResponse
 		and:
 			actualResult.code() == HTTP_OK
 			actualResult.text() == okResponse.content()
@@ -60,7 +63,7 @@ class CacheUSpec extends Specification {
 			def cacheResult = cachedRequest.connect()
 		then: 'the second time the cache is used'
 			1 * cacheContainer.valid(_) >> true
-			1 * cacheContainer.content() >> joinedResponse(response)
+			1 * cacheContainer.content() >> joinedResponse
 		and:
 			cacheResult.code() == HTTP_OK
 			cacheResult.text() == okResponse.content()
@@ -105,6 +108,8 @@ class CacheUSpec extends Specification {
 			response.error() >> { true }
 			response.text() >> { koResponse.content() }
 			response.bytes() >> { koResponse.content().bytes }
+		and:
+			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
 			Get get = Mock()
 			get.connect() >> response
@@ -127,9 +132,7 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the text the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			0 * cacheContainer.write (
-				joinedResponse(response)
-			) >> null
+			0 * cacheContainer.write(joinedResponse) >> null
 		and:
 			actualResult.is(response)
 			actualResult.code() == HTTP_BAD_REQUEST
@@ -156,6 +159,8 @@ class CacheUSpec extends Specification {
 			response.error() >> { true }
 			response.text() >> { koResponse.content() }
 			response.bytes() >> { koResponse.content().bytes }
+		and:
+			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
 			Get get = Mock()
 			get.connect() >> response
@@ -183,11 +188,9 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the text the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			1 * cacheContainer.write (
-				joinedResponse(response)
-			) >> null
+			1 * cacheContainer.write(joinedResponse) >> null
+			1 * cacheContainer.content() >> { joinedResponse }
 		and:
-			actualResult.is(response)
 			actualResult.code() == HTTP_BAD_REQUEST
 			actualResult.text() == koResponse.content()
 		and: 'the miss operation is executed once'
@@ -197,7 +200,7 @@ class CacheUSpec extends Specification {
 			def cachedResult = cachedRequest.connect()
 		then: 'the second time the cache is used'
 			1 * cacheContainer.valid(_) >> true
-			1 * cacheContainer.content() >> joinedResponse(response)
+			1 * cacheContainer.content() >> joinedResponse
 		and:
 			cachedResult.code() == HTTP_BAD_REQUEST
 			cachedResult.text() == koResponse.content()
