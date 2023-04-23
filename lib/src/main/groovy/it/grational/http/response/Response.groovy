@@ -7,6 +7,7 @@ class Response implements HttpResponse {
 	private Integer code
 	private URLConnection connection
 	private Boolean error = false
+	private Throwable exception
 
 	@Override
 	Integer code() {
@@ -16,6 +17,15 @@ class Response implements HttpResponse {
 	@Override
 	Boolean error() {
 		this.error || (this.code >= HTTP_BAD_REQUEST)
+	}
+
+	@Override
+	Throwable exception() {
+		this.exception ?: {
+			throw new IllegalStateException (
+				"No exception were been thrown at this moment!"
+			)
+		}()
 	}
 
 	@Override
@@ -39,6 +49,7 @@ class Response implements HttpResponse {
 			result = this.connection.inputStream 
 		} catch (e) {
 			this.error = true
+			this.exception = e
 			result = this.connection.errorStream
 		}
 		return result

@@ -9,11 +9,11 @@ class Retry implements HttpRequest {
 
 	Retry (
 		HttpRequest org,
-		Integer     retries = 3,
-		Closure     rop = { curr, tot -> Thread.sleep(1000 * curr) }
+		Integer retries = 3,
+		Closure rop = { curr, tot -> Thread.sleep(1000 * curr) }
 	) {
-		this.origin         = org
-		this.retries        = retries
+		this.origin = org
+		this.retries = retries
 		this.retryOperation = rop
 	}
 
@@ -21,15 +21,31 @@ class Retry implements HttpRequest {
 	HttpResponse connect() {
 		for ( Integer time = 1; time <= retries; time++ ) {
 			try {
-				return this.origin.connect()
-			}
-			catch (IOException ioe) {
-				if (time < retries)
-					this.retryOperation.call(time, retries)
+				HttpResponse response = this.origin.connect()
+				if ( response.error() )
+					handleErrors (
+						time,
+						response.exception()
+					)
 				else
-					throw new RuntimeException("Retry limit (${retries}) exceeded for connection '${this.origin.toString()}'", ioe)
+					return response
+			} catch (IOException e) {
+				handleErrors(time, e)
 			}
 		}
+	}
+
+	private void handleErrors (
+		Integer time,
+		Exception e
+	) {
+		if (time < retries)
+			this.retryOperation.call(time, retries)
+		else
+			throw new RuntimeException (
+				"Retry limit (${retries}) exceeded for connection '${this.origin.toString()}'",
+				e
+			)
 	}
 
 	@Override
