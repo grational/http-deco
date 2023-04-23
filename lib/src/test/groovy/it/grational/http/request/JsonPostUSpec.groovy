@@ -13,12 +13,21 @@ class JsonPostUSpec extends Specification {
 
 	@Shared String contentTypeHeader = 'application/json'
 
+	@Shared String secondaryPath = '/secondary/path'
+
 	def setupSpec() {
 		ms = new MockServer(port: 2525)
 		ms.start()
 
   	ms.stubFor (
 			post(urlPathEqualTo(ms.path))
+			.willReturn (
+				okJson(ms.ok.body)
+			)
+		)
+
+  	ms.stubFor (
+			post(urlPathEqualTo(secondaryPath))
 			.willReturn (
 				okJson(ms.ok.body)
 			)
@@ -56,22 +65,16 @@ class JsonPostUSpec extends Specification {
 		and:
 			response.code() == ms.ok.code
 			response.text() == ms.ok.body
-	}
 
-	def "Should could be capable of handling a map version of the json body"() {
-		given:
-			String mapInput = [
-				id: 1,
-				add: 1.0
-			]
-		when:
-			def response = new JsonPost (
-				url: ms.url,
-				map: mapInput
+		when: 'canonical constructor version'
+			response = new JsonPost (
+				ms.url,
+				stringInput
 			).connect()
+
 		then:
 			ms.verify (
-				1,
+				2,
 				postRequestedFor (
 					urlPathEqualTo(ms.path)
 				)
@@ -80,7 +83,67 @@ class JsonPostUSpec extends Specification {
 					equalTo(contentTypeHeader)
 				)
 				.withRequestBody (
-					equalToJson(JsonOutput.toJson(mapInput))
+					equalToJson(stringInput)
+				)
+			)
+
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should could be capable of handling a map version of the json body"() {
+		given:
+			Map mapInput = [
+				id: 1,
+				add: 1.0
+			]
+		and:
+			URL secondaryURL = "${ms.origin}${secondaryPath}".toURL()
+		when:
+			def response = new JsonPost (
+				url: secondaryURL,
+				map: mapInput
+			).connect()
+		then:
+			ms.verify (
+				1,
+				postRequestedFor (
+					urlPathEqualTo(secondaryPath)
+				)
+				.withHeader (
+					'Content-Type',
+					equalTo(contentTypeHeader)
+				)
+				.withRequestBody (
+					equalToJson (
+						JsonOutput.toJson(mapInput)
+					)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+
+		when: 'canonical version of the map constructor'
+			response = new JsonPost (
+				secondaryURL,
+				mapInput
+			).connect()
+		then:
+			ms.verify (
+				2,
+				postRequestedFor (
+					urlPathEqualTo(secondaryPath)
+				)
+				.withHeader (
+					'Content-Type',
+					equalTo(contentTypeHeader)
+				)
+				.withRequestBody (
+					equalToJson (
+						JsonOutput.toJson(mapInput)
+					)
 				)
 			)
 		and:
