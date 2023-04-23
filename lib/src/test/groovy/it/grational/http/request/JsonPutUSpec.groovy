@@ -13,12 +13,21 @@ class JsonPutUSpec extends Specification {
 
 	@Shared String contentTypeHeader = 'application/json'
 
+	@Shared String secondaryPath = '/secondary/path'
+
 	def setupSpec() {
 		ms = new MockServer(port: 3535)
 		ms.start()
 
   	ms.stubFor (
 			put(urlPathEqualTo(ms.path))
+			.willReturn (
+				okJson(ms.ok.body)
+			)
+		)
+
+  	ms.stubFor (
+			put(urlPathEqualTo(secondaryPath))
 			.willReturn (
 				okJson(ms.ok.body)
 			)
@@ -56,24 +65,75 @@ class JsonPutUSpec extends Specification {
 		and:
 			response.code() == ms.ok.code
 			response.text() == ms.ok.body
+
+		when: 'canonical constructor version'
+			response = new JsonPut (
+				ms.url,
+				stringInput
+			).connect()
+
+		then:
+			ms.verify (
+				2,
+				putRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+				.withHeader (
+					'Content-Type',
+					equalTo(contentTypeHeader)
+				)
+				.withRequestBody (
+					equalToJson(stringInput)
+				)
+			)
+
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
 	}
 
 	def "Should could be capable of handling a map version of the json body"() {
 		given:
-			String mapInput = [
+			Map mapInput = [
 				id: 1,
 				add: 1.0
 			]
+		and:
+			URL secondaryURL = "${ms.origin}${secondaryPath}".toURL()
+
 		when:
 			def response = new JsonPut (
-				url: ms.url,
+				url: secondaryURL,
 				map: mapInput
 			).connect()
 		then:
 			ms.verify (
 				1,
 				putRequestedFor (
-					urlPathEqualTo(ms.path)
+					urlPathEqualTo(secondaryPath)
+				)
+				.withHeader (
+					'Content-Type',
+					equalTo(contentTypeHeader)
+				)
+				.withRequestBody (
+					equalToJson(JsonOutput.toJson(mapInput))
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+
+		when: 'canonical constructor version'
+			response = new JsonPut (
+				secondaryURL,
+				mapInput
+			).connect()
+		then:
+			ms.verify (
+				2,
+				putRequestedFor (
+					urlPathEqualTo(secondaryPath)
 				)
 				.withHeader (
 					'Content-Type',
