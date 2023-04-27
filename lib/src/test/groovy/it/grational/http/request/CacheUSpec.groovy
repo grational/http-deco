@@ -30,7 +30,7 @@ class CacheUSpec extends Specification {
 		and:
 			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
-			Get get = Mock()
+			HttpRequest get = Mock()
 			get.connect() >> response
 		and: 'a mocked file cache container'
 			CacheContainer cacheContainer = Mock()
@@ -73,7 +73,7 @@ class CacheUSpec extends Specification {
 
 	def "Should execute the miss operation before the actual content is retrieved and stored"() {
 		given: 'a mocked standard get'
-			Get get = Mock()
+			HttpRequest get = Mock()
 		and: 'a mocked file cache container'
 			CacheContainer cacheContainer = Mock()
 		and: 'the miss operation'
@@ -111,7 +111,7 @@ class CacheUSpec extends Specification {
 		and:
 			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
-			Get get = Mock()
+			HttpRequest get = Mock()
 			get.connect() >> response
 		and: 'a mocked file cache container'
 			CacheContainer cacheContainer = Mock()
@@ -162,7 +162,7 @@ class CacheUSpec extends Specification {
 		and:
 			def joinedResponse = joinedResponse(response)
 		and: 'a mocked standard get'
-			Get get = Mock()
+			HttpRequest get = Mock()
 			get.connect() >> response
 		and: 'a mocked file cache container'
 			CacheContainer cacheContainer = Mock()

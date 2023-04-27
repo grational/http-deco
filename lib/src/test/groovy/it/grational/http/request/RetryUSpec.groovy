@@ -36,10 +36,10 @@ class RetryUSpec extends Specification {
 	// 3. feature methods
 	def "Should obtain the result after x retries"() {
 		given:
-			Get get = Mock()
+			HttpRequest get = Mock()
 
     when: 'the request to obtain the text is done'
-			def actualResult = new Retry(get, retries).connect()
+			HttpResponse actualResult = new Retry(get, retries).connect()
 
 		then: '2 get.text() calls are done underneath'
 			2 * get.connect() >> {
@@ -59,7 +59,7 @@ class RetryUSpec extends Specification {
 
 	def "Should exceed the retry connection limit and raise a RuntimeException"() {
 		given:
-			Get get = Mock()
+			HttpRequest get = Mock()
 
     when: 'the request to obtain the text is done'
 			def actualResult = new Retry(get, retries).connect()
@@ -80,7 +80,7 @@ class RetryUSpec extends Specification {
 
 	def "Should retry even when no exception is thrown if a response error happens"() {
 		given:
-			Get get = Mock()
+			HttpRequest get = new Get(ms.url)
 
     when: 'the request to obtain the text is done'
 			def actualResult = new Retry(get, retries).connect()
