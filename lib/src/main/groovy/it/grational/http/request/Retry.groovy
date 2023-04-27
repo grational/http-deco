@@ -1,4 +1,5 @@
 package it.grational.http.request
+
 import it.grational.http.response.HttpResponse
 
 class Retry implements HttpRequest {
@@ -22,30 +23,31 @@ class Retry implements HttpRequest {
 		for ( Integer time = 1; time <= retries; time++ ) {
 			try {
 				HttpResponse response = this.origin.connect()
-				if ( response.error() )
-					handleErrors (
-						time,
-						response.exception()
-					)
-				else
+				if ( response.error() ) {
+					if ( !retry(time) )
+						raiseException(response.exception())
+				} else {
 					return response
+				}
 			} catch (IOException e) {
-				handleErrors(time, e)
+				if ( !retry(time) )
+					raiseException(e)
 			}
 		}
 	}
 
-	private void handleErrors (
-		Integer time,
-		Exception e
-	) {
-		if (time < retries)
+	private Boolean retry(Integer time) {
+		Boolean retry = (time < retries)
+		if ( retry )
 			this.retryOperation.call(time, retries)
-		else
-			throw new RuntimeException (
-				"Retry limit (${retries}) exceeded for connection '${this.origin.toString()}'",
-				e
-			)
+		return retry
+	}
+
+	private void raiseException(Exception e) {
+		throw new RuntimeException (
+			"Retry limit (${retries}) exceeded for connection '${this.origin}'",
+			e
+		)
 	}
 
 	@Override

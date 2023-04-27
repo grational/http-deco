@@ -3,11 +3,12 @@ package it.grational.http.request
 import spock.lang.*
 import it.grational.http.response.HttpResponse
 import static java.net.HttpURLConnection.*
+import it.grational.specification.MockServer
+import static com.github.tomakehurst.wiremock.client.WireMock.*
 
 class RetryUSpec extends Specification {
 
 	// 1. fields
-	Integer counter = 1
 	@Shared Integer retries = 3
 	@Shared String url = 'https://www.google.it'
 	@Shared String expectedContent = 'Google homepage content'
@@ -15,8 +16,10 @@ class RetryUSpec extends Specification {
 	@Shared String unexpectedContent = 'Error response'
 	@Shared HttpResponse koResponse
 
+	@Shared MockServer ms
+
   // 2. fixture methods
-  def setup() {
+  def setupSpec() {
 		okResponse = new HttpResponse.CustomResponse (
 			HTTP_OK,
 			new ByteArrayInputStream (
@@ -29,26 +32,29 @@ class RetryUSpec extends Specification {
 				unexpectedContent.bytes
 			),
 			true,
-			new IOException("Yours has been a bad request")
+			new IOException("Your request was a bad one")
 		)
+
+		ms = new MockServer(port: 1100)
+		ms.start()
   }
+
+	def cleanupSpec() {
+		ms.stop()
+	}
 
 	// 3. feature methods
 	def "Should obtain the result after x retries"() {
-		given:
+		setup:
 			HttpRequest get = Mock()
+			Integer counter = 1
 
     when: 'the request to obtain the text is done'
 			HttpResponse actualResult = new Retry(get, retries).connect()
 
-		then: '2 get.text() calls are done underneath'
+		then: '2 get.connect() calls are done underneath'
 			2 * get.connect() >> {
-				if ( counter < (retries-1) ) {
-					def exMessage = "Attempt ${counter}"
-					counter++
-					throw new IOException(exMessage)
-				}
-				return okResponse
+				( counter++ == 1 ) ? koResponse : okResponse
 			}
 		and: 'no exception is thrown'
 			notThrown(RuntimeException)
@@ -58,47 +64,38 @@ class RetryUSpec extends Specification {
 	}
 
 	def "Should exceed the retry connection limit and raise a RuntimeException"() {
-		given:
+		setup:
 			HttpRequest get = Mock()
+			Integer counter = 1
 
     when: 'the request to obtain the text is done'
 			def actualResult = new Retry(get, retries).connect()
 
-		then: '3 calls to get.text() are done'
-			3 * get.connect() >> {
-				if ( counter < (retries+1) ) {
-					def exMessage = "Attempt ${counter}"
-					counter++
-					throw new IOException(exMessage)
-				}
-				return okResponse
-			}
+		then:
+			3 * get.connect() >> { koResponse }
 		and: 'The limit exceeded RuntimeException is thrown'
 			def exception = thrown(RuntimeException)
 			exception.message == "Retry limit (3) exceeded for connection '${get.toString()}'"
 	}
 
-	def "Should retry even when no exception is thrown if a response error happens"() {
-		given:
+	def "Should try to hit a closed port retries times before throwing a runtime exception"() {
+		setup:
 			HttpRequest get = new Get(ms.url)
+			HttpRequest retry = new Retry(get, retries)
 
-    when: 'the request to obtain the text is done'
-			def actualResult = new Retry(get, retries).connect()
+		when:
+			HttpResponse response = retry.connect()
 
-		then: '2 get.text() calls are done underneath'
-			2 * get.connect() >> {
-				def response = okResponse
-				if ( counter < (retries-1) ) {
-					counter++
-					response = koResponse
-				}
-				return response
-			}
-		and: 'no exception is thrown'
-			notThrown(RuntimeException)
-		and: 'the expected content is retrieved'
-			actualResult.code() == HTTP_OK
-			actualResult.text() == expectedContent
+		then: 'The limit exceeded RuntimeException is thrown'
+			ms.verify (
+				3,
+				getRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+			)
+		and:
+			def exception = thrown(RuntimeException)
+			exception.message == "Retry limit (3) exceeded for connection '${get}'"
 	}
   // 4. helper methods
 }

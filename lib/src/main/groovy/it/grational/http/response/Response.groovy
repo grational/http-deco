@@ -1,5 +1,6 @@
 package it.grational.http.response
 
+import groovy.transform.Memoized
 import static java.net.HttpURLConnection.*
 import static java.nio.charset.StandardCharsets.*
 
@@ -21,11 +22,18 @@ class Response implements HttpResponse {
 
 	@Override
 	Throwable exception() {
-		this.exception ?: {
+		Throwable result
+		if ( this.exception ) {
+			result = this.exception
+		} else if ( this.error() ) {
+			this.text()
+			result = this.exception
+		} else {
 			throw new IllegalStateException (
 				"No exception were been thrown at this moment!"
 			)
-		}()
+		}
+		return result
 	}
 
 	@Override
@@ -43,6 +51,7 @@ class Response implements HttpResponse {
 		this.openInput().bytes
 	}
 
+	@Memoized
 	private InputStream openInput() {
 		InputStream result
 		try {
@@ -60,5 +69,15 @@ class Response implements HttpResponse {
 		CookieHandler.default.cookieStore.cookies.find { cookie ->
 			cookie.name == name
 		}
+	}
+
+	@Override
+	String toString() {
+		String r
+		r  = "code: ${this.code}"
+		r += "\nconnection: ${this.connection}"
+		r += "\nerror: ${this.error}"
+		r += "\nexception: ${this.exception}"
+		return r
 	}
 }
