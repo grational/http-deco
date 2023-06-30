@@ -65,7 +65,7 @@ class JsonPut extends Put {
 	 * @param json a string version of the body to be passed to the url
 	 */
 	JsonPut(URL url, String json) {
-		this (url, json, [:], null)
+		this(url, json, [:], null)
 	}
 
 	/**
@@ -75,6 +75,6 @@ class JsonPut extends Put {
 	 * @param map an object version of the body to be passed to the url
 	 */
 	JsonPut(URL url, def map) {
-		this (url, JsonOutput.toJson(map), [:], null)
+		this(url, JsonOutput.toJson(map), [:], null)
 	}
 }

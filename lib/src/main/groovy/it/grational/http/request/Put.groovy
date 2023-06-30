@@ -25,6 +25,16 @@ class Put extends StandardRequest {
 	}
 
 	/**
+	 * Secondary Canonical Constructor
+	 * <p>
+	 * @param params containing:
+	 * - url: the URL to connect to
+	 */
+	Put(URL url) {
+		this(url, null, [:], null)
+	}
+
+	/**
 	 * Secondary Map Constructor
 	 * <p>
 	 * @param params containing:
