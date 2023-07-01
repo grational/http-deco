@@ -426,8 +426,8 @@ class GetUSpec extends Specification {
 
 	def "Should correctly add the cookies using fluent api to the request"() {
 		given:
-			URL subUrl = "${ms.url}/fluent".toURL()
-			String subPath = "${ms.path}/fluent"
+			String subPath = "/fluent"
+			URL subUrl = "${ms.origin}${subPath}".toURL()
 		and:
 			ms.stubFor (
 				get(urlPathEqualTo(subPath))
@@ -541,6 +541,132 @@ class GetUSpec extends Specification {
 		and:
 			def secondCookie = response.cookie(cookies.second.name) 
 			secondCookie.toString() == "${cookies.second.name}=${cookies.second.value}"
+	}
+
+	def "Should be capable of following an intra-protocol redirect by default"() {
+		given:
+			String permanentRedirectPath = "/permanent/redirect"
+			String permanentRedirect = "${ms.origin}${permanentRedirectPath}"
+			String temporaryRedirectPath = "/temporary/redirect"
+			String temporaryRedirect = "${ms.origin}${temporaryRedirectPath}"
+			String destinationPath = "/final/destination"
+			String destination = "${ms.origin}${destinationPath}"
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(permanentRedirectPath))
+				.willReturn (
+					aResponse()
+						.withStatus(301)
+						.withHeader (
+							"Location",
+							temporaryRedirect
+						)	
+				)
+			)
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(temporaryRedirectPath))
+				.willReturn (
+					aResponse()
+						.withStatus(302)
+						.withHeader (
+							"Location",
+							destination
+						)	
+				)
+			)
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(destinationPath))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get (
+				permanentRedirect.toURL()
+			)
+			.connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(permanentRedirectPath)
+				)
+			)
+		and:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(temporaryRedirectPath)
+				)
+			)
+		and:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(destinationPath)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should be possible to disable redirects"() {
+		given:
+			String temporaryRedirectPath = "/another/temporary/redirect"
+			String temporaryRedirectBody = "Moved temporarily"
+			String temporaryRedirect = "${ms.origin}${temporaryRedirectPath}"
+			String destinationPath = "/another/destination"
+			String destination = "${ms.origin}${destinationPath}"
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(temporaryRedirectPath))
+				.willReturn (
+					aResponse()
+						.withStatus(302)
+						.withHeader (
+							"Location",
+							destination
+						)	
+						.withBody(temporaryRedirectBody)
+				)
+			)
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(destinationPath))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get (
+				temporaryRedirect.toURL()
+			)
+			.withParameter('followRedirects', false)
+			.connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(temporaryRedirectPath)
+				)
+			)
+		and:
+			ms.verify (
+				0,
+				getRequestedFor (
+					urlPathEqualTo(destinationPath)
+				)
+			)
+		and:
+			response.code() == HttpURLConnection.HTTP_MOVED_TEMP
+			response.text() == temporaryRedirectBody
 	}
 
 }

@@ -48,6 +48,11 @@ abstract class StandardRequest implements HttpRequest {
 				setUseCaches ( // boolean
 					this.parameters.useCaches
 				)
+			if (this.parameters.containsKey('followRedirects'))
+				setInstanceFollowRedirects ( // boolean
+					this.parameters.followRedirects
+				)
+
 			if (!this.parameters.headers)
 				this.parameters.headers = [:]
 
