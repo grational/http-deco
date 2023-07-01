@@ -133,6 +133,16 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
+	public StandardRequest withParameter (
+		String key,
+		def value
+	) {
+		if ( !this.parameters )
+			this.parameters = [:]
+		this.parameters << [(key): value]
+		return this
+	}
+
 	@Override
 	String toString() {
 		String r
