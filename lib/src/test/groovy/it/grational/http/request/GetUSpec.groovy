@@ -328,7 +328,7 @@ class GetUSpec extends Specification {
 			response.text() == ms.ok.body
 	}
 
-	def "Should correctly add the cookies to the request"() {
+	def "Should correctly add cookies to the request"() {
 		given:
 			ms.stubFor (
 				get(urlPathEqualTo(ms.path))
@@ -354,6 +354,102 @@ class GetUSpec extends Specification {
 				)
 				.withCookie('first_cookie', matching('first cookie value'))
 				.withCookie('second_cookie', matching('second cookie value'))
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should correctly add cookies to the request using fluent API"() {
+		given:
+			URL subUrl = "${ms.url}/fluent".toURL()
+			String subPath = "${ms.path}/fluent"
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(subPath))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(subUrl)
+				.withCookie('first_cookie', 'first cookie value')
+				.withCookie('second_cookie', 'second cookie value')
+				.connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(subPath)
+				)
+				.withCookie('first_cookie', matching('first cookie value'))
+				.withCookie('second_cookie', matching('second cookie value'))
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should correctly add headers to the request"() {
+		given:
+			ms.stubFor (
+				get(urlPathEqualTo(ms.path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get (
+				url: ms.url,
+				headers: [
+					first_header: 'first header value',
+					second_header: 'second header value'
+				]
+			).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(ms.path)
+				)
+				.withHeader('first_header', matching('first header value'))
+				.withHeader('second_header', matching('second header value'))
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+	}
+
+	def "Should correctly add the cookies using fluent api to the request"() {
+		given:
+			URL subUrl = "${ms.url}/fluent".toURL()
+			String subPath = "${ms.path}/fluent"
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(subPath))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(subUrl)
+				.withHeader('first_header', 'first header value')
+				.withHeader('second_header', 'second header value')
+				.connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(subPath)
+				)
+				.withHeader('first_header', matching('first header value'))
+				.withHeader('second_header', matching('second header value'))
 			)
 		and:
 			response.code() == ms.ok.code

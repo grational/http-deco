@@ -113,6 +113,26 @@ abstract class StandardRequest implements HttpRequest {
 		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
 	}
 
+	protected StandardRequest withHeader (
+		String key,
+		String value
+	) {
+		if ( !this.parameters.headers )
+			this.parameters.headers = [:]
+		this.parameters.headers << [(key): value]
+		return this
+	}
+
+	protected StandardRequest withCookie (
+		String key,
+		String value
+	) {
+		if ( !this.parameters.cookies )
+			this.parameters.cookies = [:]
+		this.parameters.cookies << [(key): value]
+		return this
+	}
+
 	@Override
 	String toString() {
 		String r
