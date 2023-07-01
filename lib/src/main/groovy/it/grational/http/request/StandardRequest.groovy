@@ -113,7 +113,7 @@ abstract class StandardRequest implements HttpRequest {
 		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
 	}
 
-	protected StandardRequest withHeader (
+	public StandardRequest withHeader (
 		String key,
 		String value
 	) {
@@ -123,7 +123,7 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
-	protected StandardRequest withCookie (
+	public StandardRequest withCookie (
 		String key,
 		String value
 	) {
