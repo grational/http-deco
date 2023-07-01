@@ -40,11 +40,11 @@ abstract class StandardRequest implements HttpRequest {
 				setReadTimeout ( // milliseconds
 					this.parameters.readTimeout
 				)
-			if (this.parameters.allowUserInteraction)
+			if (this.parameters.containsKey('allowUserInteraction'))
 				setAllowUserInteraction ( // boolean
 					this.parameters.allowUserInteraction
 				)
-			if (this.parameters.useCaches)
+			if (this.parameters.containsKey('useCaches'))
 				setUseCaches ( // boolean
 					this.parameters.useCaches
 				)
