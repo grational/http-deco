@@ -9,6 +9,15 @@ import it.grational.proxy.NoProxy
 import it.grational.proxy.EnvVar
 import it.grational.proxy.EnvProxy
 
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+import java.security.cert.X509Certificate
+import java.security.SecureRandom
+
 /**
  * StandardRequest
  * This class is not instantiable since it requires some members to be defined.
@@ -28,6 +37,9 @@ abstract class StandardRequest implements HttpRequest {
 		Response result
 
 		enableCookieManagementIfNeeded()
+
+		if ( this.parameters.disableSSLChecks )
+			disableSSLChecks()
 
 		this.url.openConnection(proxyFromEnvironment()).with {
 			requestMethod = this.method
@@ -105,6 +117,52 @@ abstract class StandardRequest implements HttpRequest {
 		return result
 	}
 
+	private void disableSSLChecks() {
+		disableServerNameCheck()
+		disableCertificateCheck()
+		disableHostnameCheck()
+	}
+
+	private void disableServerNameCheck() {
+		// docs: https://docs.oracle.com/javase/7/docs/technotes/guides/security/jsse/JSSERefGuide.html
+		System.setProperty (
+			'jsse.enableSNIExtension',
+			'false'
+		)
+	}
+
+	private void disableCertificateCheck() {
+		TrustManager[] trustAll = new TrustManager[] {
+			new X509TrustManager() {
+				X509Certificate[] getAcceptedIssuers() { return null }
+				void checkClientTrusted(X509Certificate[] certs, String authType) {}
+				void checkServerTrusted(X509Certificate[] certs, String authType) {}
+			}
+		}
+
+		SSLContext context = SSLContext.getInstance("SSL")
+		context.init (
+			null,
+			trustAll,
+			new SecureRandom()
+		)
+		HttpsURLConnection.setDefaultSSLSocketFactory (
+			context.getSocketFactory()
+		)
+	}
+
+	private void disableHostnameCheck() {
+		HostnameVerifier alwaysValid = new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true
+			}
+		}
+
+		HttpsURLConnection.setDefaultHostnameVerifier (
+			alwaysValid
+		)
+	}
+
 	protected Map addBasicAuth(String userInfo) {
 		def (user,pass) = userInfo.tokenize(':')
 		def auth = new Authorization (
@@ -118,7 +176,8 @@ abstract class StandardRequest implements HttpRequest {
 		cookies.collect { k, v -> "${k}=${v};" }.join(' ')
 	}
 
-	public StandardRequest withHeader (
+	@Override
+	public HttpRequest withHeader (
 		String key,
 		String value
 	) {
@@ -128,7 +187,8 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
-	public StandardRequest withCookie (
+	@Override
+	public HttpRequest withCookie (
 		String key,
 		String value
 	) {
@@ -138,13 +198,20 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
-	public StandardRequest withParameter (
+	@Override
+	public HttpRequest withParameter (
 		String key,
 		def value
 	) {
 		if ( !this.parameters )
 			this.parameters = [:]
 		this.parameters << [(key): value]
+		return this
+	}
+
+	@Override
+	public HttpRequest withURL(URL url) {
+		this.url = url
 		return this
 	}
 
@@ -160,4 +227,5 @@ abstract class StandardRequest implements HttpRequest {
 		r += "\nproxy: ${this.proxy}"
 		return r
 	}
+
 }
