@@ -9,6 +9,7 @@ interface HttpResponse {
 	String text()
 	String text(String charset)
 	byte[] bytes()
+	String header(String name)
 	HttpCookie cookie(String name)
 
 	/**
@@ -64,6 +65,11 @@ interface HttpResponse {
 		@Override
 		byte[] bytes() {
 			this.stream.bytes
+		}
+
+		@Override
+		String header(String name) {
+			return "header ${name} value"
 		}
 
 		@Override

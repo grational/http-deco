@@ -65,6 +65,11 @@ class Response implements HttpResponse {
 	}
 
 	@Override
+	String header(String name) {
+		this.connection.getHeaderField(name)
+	}
+
+	@Override
 	HttpCookie cookie(String name) {
 		CookieHandler.default.cookieStore.cookies.find { cookie ->
 			cookie.name == name
