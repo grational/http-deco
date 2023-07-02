@@ -73,6 +73,26 @@ class Cache implements HttpRequest {
 	}
 
 	@Override
+	HttpRequest withHeader(String key, String value) {
+		this.origin.withHeader(key, value)
+	}
+
+	@Override
+	HttpRequest withCookie(String key, String value) {
+		this.origin.withCookie(key, value)
+	}
+
+	@Override
+	HttpRequest withParameter(String key, def value) {
+		this.origin.withParameter(key, value)
+	}
+
+	@Override
+	HttpRequest withURL(URL url) {
+		this.origin.withURL(url)
+	}
+
+	@Override
 	String toString() {
 		this.origin.toString()
 	}
