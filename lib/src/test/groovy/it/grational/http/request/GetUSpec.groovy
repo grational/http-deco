@@ -8,6 +8,7 @@ import it.grational.proxy.HttpAuthProxy
 import it.grational.proxy.HttpProxy
 import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
+import static java.net.HttpURLConnection.*
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials
 
@@ -545,18 +546,18 @@ class GetUSpec extends Specification {
 
 	def "Should be capable of following an intra-protocol redirect by default"() {
 		given:
-			String permanentRedirectPath = "/permanent/redirect"
+			String permanentRedirectPath = "/1/permanent/redirect"
 			String permanentRedirect = "${ms.origin}${permanentRedirectPath}"
-			String temporaryRedirectPath = "/temporary/redirect"
+			String temporaryRedirectPath = "/1/temporary/redirect"
 			String temporaryRedirect = "${ms.origin}${temporaryRedirectPath}"
-			String destinationPath = "/final/destination"
+			String destinationPath = "/1/final/destination"
 			String destination = "${ms.origin}${destinationPath}"
 		and:
 			ms.stubFor (
 				get(urlPathEqualTo(permanentRedirectPath))
 				.willReturn (
 					aResponse()
-						.withStatus(301)
+						.withStatus(HTTP_MOVED_PERM)
 						.withHeader (
 							"Location",
 							temporaryRedirect
@@ -568,7 +569,7 @@ class GetUSpec extends Specification {
 				get(urlPathEqualTo(temporaryRedirectPath))
 				.willReturn (
 					aResponse()
-						.withStatus(302)
+						.withStatus(HTTP_MOVED_TEMP)
 						.withHeader (
 							"Location",
 							destination
@@ -617,17 +618,17 @@ class GetUSpec extends Specification {
 
 	def "Should be possible to disable redirects"() {
 		given:
-			String temporaryRedirectPath = "/another/temporary/redirect"
+			String temporaryRedirectPath = "/2/temporary/redirect"
 			String temporaryRedirectBody = "Moved temporarily"
 			String temporaryRedirect = "${ms.origin}${temporaryRedirectPath}"
-			String destinationPath = "/another/destination"
+			String destinationPath = "/2/final/destination"
 			String destination = "${ms.origin}${destinationPath}"
 		and:
 			ms.stubFor (
 				get(urlPathEqualTo(temporaryRedirectPath))
 				.willReturn (
 					aResponse()
-						.withStatus(302)
+						.withStatus(HTTP_MOVED_TEMP)
 						.withHeader (
 							"Location",
 							destination
