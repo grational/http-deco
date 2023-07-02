@@ -1,15 +1,15 @@
 package it.grational.http.request
 
 import spock.lang.*
-import it.grational.specification.MockServer
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*
 import it.grational.proxy.HttpAuthProxy
 import it.grational.proxy.HttpProxy
 import it.grational.http.response.HttpResponse
 import it.grational.specification.Environment
 import static java.net.HttpURLConnection.*
 
+import it.grational.specification.MockServer
+import static com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.client.BasicCredentials
 
 class GetUSpec extends Specification {

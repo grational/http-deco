@@ -60,7 +60,7 @@ class RedirectionsUSpec extends Specification {
 				new Get (
 					temporaryRedirect.toURL()
 				).withParameter (
-					'disableSSLChecks',
+					'insecure',
 					true
 				)
 			).connect()
@@ -131,7 +131,7 @@ class RedirectionsUSpec extends Specification {
 				new Get (
 					permanentRedirect.toURL()
 				).withParameter (
-					'disableSSLChecks',
+					'insecure',
 					true
 				),
 				1

@@ -38,8 +38,8 @@ abstract class StandardRequest implements HttpRequest {
 
 		enableCookieManagementIfNeeded()
 
-		if ( this.parameters.disableSSLChecks )
-			disableSSLChecks()
+		if ( this.parameters.insecure )
+			insecure()
 
 		this.url.openConnection(proxyFromEnvironment()).with {
 			requestMethod = this.method
@@ -117,7 +117,7 @@ abstract class StandardRequest implements HttpRequest {
 		return result
 	}
 
-	private void disableSSLChecks() {
+	private void insecure() {
 		disableServerNameCheck()
 		disableCertificateCheck()
 		disableHostnameCheck()
