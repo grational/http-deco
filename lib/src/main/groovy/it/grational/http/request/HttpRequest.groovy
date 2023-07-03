@@ -3,9 +3,8 @@ package it.grational.http.request
 import it.grational.http.response.HttpResponse
 
 interface HttpRequest {
-	HttpResponse connect()
-	HttpRequest withHeader(String key, String value)
-	HttpRequest withCookie(String key, String value)
-	HttpRequest withParameter(String key, def value)
-	HttpRequest withURL(URL url)
+	public HttpResponse connect()
+	public HttpRequest withHeader(String key, String value)
+	public HttpRequest withCookie(String key, String value)
+	public HttpRequest withParameter(String key, def value)
 }

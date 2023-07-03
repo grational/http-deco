@@ -209,8 +209,7 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
-	@Override
-	public HttpRequest withURL(URL url) {
+	protected HttpRequest withURL(URL url) {
 		this.url = url
 		return this
 	}

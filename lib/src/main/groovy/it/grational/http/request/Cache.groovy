@@ -11,9 +11,8 @@ import it.grational.http.response.HttpResponse
  * NOTE: the cache container should not be valid 
  * if it is empty to make the cache to work properly
  */
-class Cache implements HttpRequest {
+class Cache extends FunctionalRequest {
 
-	private final HttpRequest    origin
 	private final CacheContainer cacheContainer
 	private final Duration       leaseTime
 	private final Closure        missOperation
@@ -38,7 +37,7 @@ class Cache implements HttpRequest {
 	}
 
 	@Override
-	HttpResponse connect() {
+	public HttpResponse connect() {
 		HttpResponse response
 		if ( this.cacheContainer.valid(this.leaseTime) ) {
 			response = this.cachedResponse()
@@ -70,31 +69,6 @@ class Cache implements HttpRequest {
 			this.cachedCode(cacheLines),
 			this.cachedContent(cacheLines)
 		)
-	}
-
-	@Override
-	HttpRequest withHeader(String key, String value) {
-		this.origin.withHeader(key, value)
-	}
-
-	@Override
-	HttpRequest withCookie(String key, String value) {
-		this.origin.withCookie(key, value)
-	}
-
-	@Override
-	HttpRequest withParameter(String key, def value) {
-		this.origin.withParameter(key, value)
-	}
-
-	@Override
-	HttpRequest withURL(URL url) {
-		this.origin.withURL(url)
-	}
-
-	@Override
-	String toString() {
-		this.origin.toString()
 	}
 
 	private List<String> cacheLines() {

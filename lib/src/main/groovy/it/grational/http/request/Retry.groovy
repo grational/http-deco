@@ -3,9 +3,8 @@ package it.grational.http.request
 import it.grational.http.response.HttpResponse
 import java.util.function.BiConsumer;
 
-class Retry implements HttpRequest {
+class Retry extends FunctionalRequest {
 
-	private final HttpRequest origin
 	private final Integer     retries
 	private final BiConsumer retryOperation
 
@@ -20,7 +19,7 @@ class Retry implements HttpRequest {
 	}
 
 	@Override
-	HttpResponse connect() {
+	public HttpResponse connect() {
 		for ( Integer time = 1; time <= retries; time++ ) {
 			try {
 				HttpResponse response = this.origin.connect()
@@ -53,28 +52,4 @@ class Retry implements HttpRequest {
 		)
 	}
 
-	@Override
-	HttpRequest withHeader(String key, String value) {
-		this.origin.withHeader(key, value)
-	}
-
-	@Override
-	HttpRequest withCookie(String key, String value) {
-		this.origin.withCookie(key, value)
-	}
-
-	@Override
-	HttpRequest withParameter(String key, def value) {
-		this.origin.withParameter(key, value)
-	}
-
-	@Override
-	HttpRequest withURL(URL url) {
-		this.origin.withURL(url)
-	}
-
-	@Override
-	String toString() {
-		this.origin.toString()
-	}
 }

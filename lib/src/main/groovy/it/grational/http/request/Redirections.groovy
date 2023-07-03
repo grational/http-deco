@@ -3,9 +3,8 @@ package it.grational.http.request
 import it.grational.http.response.HttpResponse
 import static java.net.HttpURLConnection.*
 
-class Redirections implements HttpRequest {
+class Redirections extends FunctionalRequest {
 
-	private HttpRequest origin
 	private final Integer max
 
 	Redirections (
@@ -17,7 +16,7 @@ class Redirections implements HttpRequest {
 	}
 
 	@Override
-	HttpResponse connect() {
+	public HttpResponse connect() {
 		disableIntraProtocolRedirects()
 		HttpResponse response
 		for ( Integer time = 0; time <= max; time++ ) {
@@ -50,31 +49,6 @@ class Redirections implements HttpRequest {
 		location = URLDecoder.decode(location, 'UTF-8')
 		URL newDestination = new URL(this.origin.url, location)
 		this.origin = this.origin.withURL(newDestination)
-	}
-
-	@Override
-	HttpRequest withHeader(String key, String value) {
-		this.origin.withHeader(key, value)
-	}
-
-	@Override
-	HttpRequest withCookie(String key, String value) {
-		this.origin.withCookie(key, value)
-	}
-
-	@Override
-	HttpRequest withParameter(String key, def value) {
-		this.origin.withParameter(key, value)
-	}
-
-	@Override
-	HttpRequest withURL(URL url) {
-		this.origin.withURL(url)
-	}
-
-	@Override
-	String toString() {
-		this.origin.toString()
 	}
 
 }
