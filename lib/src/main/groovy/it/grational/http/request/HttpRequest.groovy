@@ -7,4 +7,5 @@ interface HttpRequest {
 	public HttpRequest withHeader(String key, String value)
 	public HttpRequest withCookie(String key, String value)
 	public HttpRequest withParameter(String key, def value)
+	public HttpRequest withBasicAuth(String username, String password)
 }

@@ -25,6 +25,11 @@ abstract class FunctionalRequest implements HttpRequest {
 		this.origin.withParameter(key, value)
 	}
 
+	@Override
+	public HttpRequest withBasicAuth(String username, String password) {
+		this.origin.withBasicAuth(username, password)
+	}
+
 	protected HttpRequest withURL(URL url) {
 		this.origin.withURL(url)
 	}

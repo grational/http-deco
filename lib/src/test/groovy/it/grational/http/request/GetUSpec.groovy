@@ -670,4 +670,26 @@ class GetUSpec extends Specification {
 			response.text() == temporaryRedirectBody
 	}
 
+	def "Should be capable of changing the userInfo a given URL"() {
+		given:
+			String protocol = 'http'
+			String userInfo = 'oldUser:oldPass'
+			String residual = 'hostname/path'
+		and:
+			String username = 'newUser'
+			String password = 'newPass'
+
+		when:
+			HttpRequest request = new Get (
+				"${protocol}://${userInfo}@${residual}".toURL()
+			)
+			.withBasicAuth (
+				username,
+				password
+			)
+
+		then:
+			request.url.toString() == "${protocol}://${username}:${password}@${residual}"
+	}
+
 }

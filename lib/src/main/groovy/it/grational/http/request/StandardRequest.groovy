@@ -18,6 +18,8 @@ import javax.net.ssl.X509TrustManager
 import java.security.cert.X509Certificate
 import java.security.SecureRandom
 
+import java.util.regex.Matcher
+
 /**
  * StandardRequest
  * This class is not instantiable since it requires some members to be defined.
@@ -31,6 +33,8 @@ abstract class StandardRequest implements HttpRequest {
 	protected String    body
 	protected Map       parameters
 	protected Proxy     proxy
+	private static final String urlPattern =
+		$/(?<protocol>[^:]{3,})://(?:[^:]+:(?:[^@]*@)+)?(?<residual>.*)/$
 
 	@Override
 	HttpResponse connect(String charset = UTF_8.name()) {
@@ -211,6 +215,16 @@ abstract class StandardRequest implements HttpRequest {
 
 	protected HttpRequest withURL(URL url) {
 		this.url = url
+		return this
+	}
+
+	@Override
+	public HttpRequest withBasicAuth (
+		String username,
+		String password
+	) {
+		Matcher m = (url =~ urlPattern); m.find()
+		this.url = "${m.group('protocol')}://${username}:${password}@${m.group('residual')}".toURL()
 		return this
 	}
 
