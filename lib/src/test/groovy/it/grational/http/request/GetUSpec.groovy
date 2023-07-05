@@ -692,4 +692,35 @@ class GetUSpec extends Specification {
 			request.url.toString() == "${protocol}://${username}:${password}@${residual}"
 	}
 
+	def "Should be able to read the response twice from the concrete response"() {
+		given:
+			String path = '/twice/response/text'
+			URL pathURL = "${ms.origin}${path}".toURL()
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					okJson(ms.ok.body)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(pathURL).connect()
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.text() == ms.ok.body
+		and:
+			response.text() == ms.ok.body
+			noExceptionThrown()
+	}
+
+
 }

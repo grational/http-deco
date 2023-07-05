@@ -1,19 +1,11 @@
 package it.grational.http.response
 
 import groovy.transform.Memoized
+import java.nio.charset.Charset
 import static java.net.HttpURLConnection.*
-import static java.nio.charset.StandardCharsets.*
 
-class Response implements HttpResponse {
-	private Integer code
+class Response extends HttpResponse.StandardResponse {
 	private URLConnection connection
-	private Boolean error = false
-	private Throwable exception
-
-	@Override
-	Integer code() {
-		this.code
-	}
 
 	@Override
 	Boolean error() {
@@ -36,22 +28,12 @@ class Response implements HttpResponse {
 		return result
 	}
 
-	@Override
-	String text() {
-		this.text(UTF_8.name())
-	}
-
-	@Override
-	String text(String charset) {
-		this.openInput().getText(charset)
-	}
-
-	@Override
-	byte[] bytes() {
-		this.openInput().bytes
-	}
-
 	@Memoized
+	@Override
+	String text(Charset charset) {
+		this.openInput().getText(charset.name())
+	}
+
 	private InputStream openInput() {
 		InputStream result
 		try {

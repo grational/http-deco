@@ -1,5 +1,6 @@
 package it.grational.http.request
 
+import java.nio.charset.Charset
 import static java.nio.charset.StandardCharsets.*
 
 import it.grational.http.response.Response
@@ -37,7 +38,7 @@ abstract class StandardRequest implements HttpRequest {
 		$/(?<protocol>[^:]{3,})://(?:[^:]+:(?:[^@]*@)+)?(?<residual>.*)/$
 
 	@Override
-	HttpResponse connect(String charset = UTF_8.name()) {
+	HttpResponse connect(Charset charset = UTF_8) {
 		Response result
 
 		enableCookieManagementIfNeeded()
@@ -84,7 +85,7 @@ abstract class StandardRequest implements HttpRequest {
 
 			if (this.body) {
 				doOutput = true
-				outputStream.withWriter(charset) { writer ->
+				outputStream.withWriter(charset.name()) { writer ->
 					writer.write(this.body)
 				}
 			} else {
