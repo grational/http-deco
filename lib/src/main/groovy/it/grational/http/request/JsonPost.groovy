@@ -75,7 +75,7 @@ class JsonPost extends Post {
 	 * @param map an object version of the body to be passed to the url
 	 */
 	JsonPost(URL url, def map) {
-		this (url, JsonOutput.toJson(map), [:], null)
+		this(url, JsonOutput.toJson(map), [:], null)
 	}
 
 }
