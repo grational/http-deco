@@ -64,6 +64,25 @@ class AwsSignV4 extends FunctionalRequest {
 		String ser,
 		String reg,
 		String acc,
+		String secr
+	) {
+		this (
+			org,
+			ser,
+			reg,
+			acc,
+			secr,
+			System.getenv('AWS_SESSION_TOKEN'),
+			iso8601Date(),
+			iso8601Timestamp()
+		)
+	}
+
+	AwsSignV4 (
+		HttpRequest org,
+		String ser,
+		String reg,
+		String acc,
 		String secr,
 		String sess,
 		String date,
@@ -82,7 +101,7 @@ class AwsSignV4 extends FunctionalRequest {
 	@Override
 	public HttpResponse connect() {
 		this.enrichHeaders()
-		def request = withHeader (
+		this.withHeader (
 			'Authorization',
 			String.join(' ',
 				HMAC_ALGORITHM,
@@ -92,10 +111,7 @@ class AwsSignV4 extends FunctionalRequest {
 					"Signature=${signature(secretAccessKey, service, region, sessionToken)}"
 				)
 			)
-		)
-		println "request (${request.getClass()}) -> ${request}"
-		def response = request.connect()
-		return response 
+		).connect()
 	}
 
 	private void enrichHeaders() {
