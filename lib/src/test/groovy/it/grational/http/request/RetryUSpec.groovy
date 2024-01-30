@@ -18,8 +18,8 @@ class RetryUSpec extends Specification {
 
 	@Shared MockServer ms
 
-  // 2. fixture methods
-  def setupSpec() {
+	// 2. fixture methods
+	def setupSpec() {
 		okResponse = new HttpResponse.CustomResponse (
 			HTTP_OK,
 			new ByteArrayInputStream (
@@ -37,7 +37,7 @@ class RetryUSpec extends Specification {
 
 		ms = new MockServer(port: 1100)
 		ms.start()
-  }
+	}
 
 	def cleanupSpec() {
 		ms.stop()
@@ -49,7 +49,7 @@ class RetryUSpec extends Specification {
 			HttpRequest get = Mock()
 			Integer counter = 1
 
-    when: 'the request to obtain the text is done'
+		when: 'the request to obtain the text is done'
 			HttpResponse actualResult = new Retry(get, retries).connect()
 
 		then: '2 get.connect() calls are done underneath'
@@ -68,7 +68,7 @@ class RetryUSpec extends Specification {
 			HttpRequest get = Mock()
 			Integer counter = 1
 
-    when: 'the request to obtain the text is done'
+		when: 'the request to obtain the text is done'
 			def actualResult = new Retry(get, retries).connect()
 
 		then:
@@ -97,5 +97,6 @@ class RetryUSpec extends Specification {
 			def exception = thrown(RuntimeException)
 			exception.message == "Retry limit (3) exceeded for connection '${get}'"
 	}
-  // 4. helper methods
+
+	// 4. helper methods
 }
