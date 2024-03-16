@@ -1,11 +1,12 @@
 package it.grational.http.request
 
+import java.util.function.BiConsumer
 import it.grational.http.response.HttpResponse
-import java.util.function.BiConsumer;
 
 class Retry extends FunctionalRequest {
 
-	private final Integer     retries
+	private final Integer retries
+	private final Boolean exception
 	private final BiConsumer retryOperation
 
 	Retry (
@@ -20,16 +21,17 @@ class Retry extends FunctionalRequest {
 
 	@Override
 	public HttpResponse connect() {
-		for ( Integer time = 1; time <= retries; time++ ) {
+		for ( int time = 1; time <= retries; time++ ) {
 			try {
-				HttpResponse response = this.origin.connect()
-				if ( response.error() ) {
-					if ( !retry(time) ) {
-						raiseException(response.exception())
-					}
-				} else {
+				HttpResponse response = origin.connect()
+
+				if ( ok(response) )
 					return response
-				}
+
+				if ( retry(time) )
+					continue
+
+				raiseException(response.exception())
 			} catch (IOException e) {
 				if ( !retry(time) )
 					raiseException(e)
@@ -37,17 +39,26 @@ class Retry extends FunctionalRequest {
 		}
 	}
 
+	private Boolean ok(HttpResponse response) {
+		return !response.error()
+	}
+
 	private Boolean retry(Integer time) {
 		Boolean retry = (time < retries)
-		if ( retry ) {
-			this.retryOperation.accept(time, retries)
-		}
+		if ( retry )
+			retryOperation.accept(time, retries)
 		return retry
+	}
+
+	private ByteArrayInputStream inputStream(String input) {
+		new ByteArrayInputStream (
+			input.join(this.separator).getBytes()
+		)
 	}
 
 	private void raiseException(Exception e) {
 		throw new RuntimeException (
-			"Retry limit (${retries}) exceeded for connection '${this.origin}'",
+			"Retry limit (${retries}) exceeded for connection '${origin}' with exception: '${e}'",
 			e
 		)
 	}

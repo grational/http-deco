@@ -10,15 +10,20 @@ interface HttpResponse {
 	Throwable exception()
 	byte[] bytes()
 	byte[] bytes(Charset charset)
+	byte[] bytes(Boolean exceptions)
+	byte[] bytes(Charset charset, Boolean exceptions)
 	String text()
 	String text(Charset charset)
+	String text(Boolean exceptions)
+	String text(Charset charset, Boolean exceptions)
 	String header(String name)
 	HttpCookie cookie(String name)
 
 	abstract class StandardResponse implements HttpResponse {
-		protected Integer   code
-		protected Boolean   error = false
+		protected Integer code
+		protected Boolean error = false
 		protected Throwable exception
+		protected Boolean exceptions = true
 
 		@Override
 		Integer code() {
@@ -27,7 +32,7 @@ interface HttpResponse {
 
 		@Override
 		byte[] bytes() {
-			this.text(UTF_8).getBytes(UTF_8)
+			this.text(UTF_8, exceptions).getBytes(UTF_8)
 		}
 
 		@Override
@@ -36,8 +41,28 @@ interface HttpResponse {
 		}
 
 		@Override
+		byte[] bytes(Boolean exceptions) {
+			this.text(UTF_8, exceptions).getBytes(UTF_8)
+		}
+
+		@Override
+		byte[] bytes(Charset charset, Boolean exceptions) {
+			this.text(charset, exceptions).getBytes(charset)
+		}
+
+		@Override
 		String text() {
-			this.text(UTF_8)
+			this.text(UTF_8, exceptions)
+		}
+
+		@Override
+		String text(Charset charset) {
+			this.text(charset, exceptions)
+		}
+
+		@Override
+		String text(Boolean exceptions) {
+			this.text(UTF_8, exceptions)
 		}
 
 	}
@@ -76,8 +101,11 @@ interface HttpResponse {
 
 		@Memoized
 		@Override
-		String text(Charset charset) {
-			this.stream.getText(charset.name())
+		String text(Charset charset, Boolean exceptions) {
+			if (exceptions && this.exception)
+				throw this.exception
+			else
+				this.stream.getText(charset.name())
 		}
 
 		@Override

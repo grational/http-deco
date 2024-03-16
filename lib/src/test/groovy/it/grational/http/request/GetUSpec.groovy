@@ -104,7 +104,8 @@ class GetUSpec extends Specification {
 	}
 
 	@Ignore
-	// TODO: it works but it requires one to manually setup and start a squid (or similar) proxy server that requires authentication using proxy_username and proxy_password
+	// TODO: it works but it requires one to manually setup and start a squid (or similar)
+	// proxy server that requires authentication using proxy_username and proxy_password
 	def "Should hit google through a squid proxy server with authentication"() {
 		given:
 			def url = "https://www.google.com".toURL()
@@ -129,7 +130,8 @@ class GetUSpec extends Specification {
 	}
 
 	@Ignore
-	// TODO: waiting for wiremock to be capable of emulating a real proxy that requires authentication. The current implementation doesn't really work
+	// TODO: waiting for wiremock to be capable of emulating a real proxy that
+	// requires authentication. The current implementation doesn't really work
 	def "Should hit the target endpoint through an authenticated proxy with a GET request"() {
 		given:
 			def path = '/proxy/authenticated/path'
@@ -488,7 +490,7 @@ class GetUSpec extends Specification {
 			)
 		and: 'without an explicit source tries INPUT then ERROR'
 			response.code() == error.code
-			response.text() == error.message
+			response.text(false) == error.message
 	}
 
 	def "Should be capable of retrieving the cookies set by the server"() {

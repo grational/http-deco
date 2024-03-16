@@ -14,11 +14,11 @@ import it.grational.http.response.HttpResponse
 class Cache extends FunctionalRequest {
 
 	private final CacheContainer cacheContainer
-	private final Duration       leaseTime
-	private final Closure        missOperation
-	private final Boolean        missOpBefore
-	private final Boolean        cacheErrors
-	private final String         separator = '\n'
+	private final Duration leaseTime
+	private final Closure missOperation
+	private final Boolean missOpBefore
+	private final Boolean cacheErrors
+	private final String separator = '\n'
 
 	Cache (
 		HttpRequest org,
@@ -28,12 +28,12 @@ class Cache extends FunctionalRequest {
 		Boolean mosBefore = false,
 		Boolean ce = false
 	) {
-		this.origin         = org
+		this.origin = org
 		this.cacheContainer = cc
-		this.leaseTime      = lt
-		this.missOperation  = mos
-		this.missOpBefore   = mosBefore
-		this.cacheErrors    = ce
+		this.leaseTime = lt
+		this.missOperation = mos
+		this.missOpBefore = mosBefore
+		this.cacheErrors = ce
 	}
 
 	@Override

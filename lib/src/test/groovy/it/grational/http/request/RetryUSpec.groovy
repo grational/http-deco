@@ -35,7 +35,7 @@ class RetryUSpec extends Specification {
 			new IOException("Your request was a bad one")
 		)
 
-		ms = new MockServer(port: 1100)
+		ms = new MockServer(port: 1111)
 		ms.start()
 	}
 
@@ -75,7 +75,7 @@ class RetryUSpec extends Specification {
 			3 * get.connect() >> { koResponse }
 		and: 'The limit exceeded RuntimeException is thrown'
 			def exception = thrown(RuntimeException)
-			exception.message == "Retry limit (3) exceeded for connection '${get.toString()}'"
+			exception.message == "Retry limit (3) exceeded for connection '${get.toString()}' with exception: '${koResponse.exception()}'"
 	}
 
 	def "Should try to hit a closed port retries times before throwing a runtime exception"() {
@@ -95,8 +95,7 @@ class RetryUSpec extends Specification {
 			)
 		and:
 			def exception = thrown(RuntimeException)
-			exception.message == "Retry limit (3) exceeded for connection '${get}'"
+			exception.message == "Retry limit (3) exceeded for connection '${get}' with exception: 'java.io.FileNotFoundException: ${ms.url}'"
 	}
 
-	// 4. helper methods
 }

@@ -18,7 +18,7 @@ class Response extends HttpResponse.StandardResponse {
 		if ( this.exception ) {
 			result = this.exception
 		} else if ( this.error() ) {
-			this.text()
+			this.text(false)
 			result = this.exception
 		} else {
 			throw new IllegalStateException (
@@ -30,18 +30,22 @@ class Response extends HttpResponse.StandardResponse {
 
 	@Memoized
 	@Override
-	String text(Charset charset) {
-		this.openInput().getText(charset.name())
+	String text(Charset charset, Boolean exceptions) {
+		this.openInput(exceptions).getText(charset.name())
 	}
 
-	private InputStream openInput() {
+	private InputStream openInput(Boolean exceptions) {
 		InputStream result
-		try {
+		if ( exceptions ) {
 			result = this.connection.inputStream 
-		} catch (e) {
-			this.error = true
-			this.exception = e
-			result = this.connection.errorStream
+		} else {
+			try {
+				result = this.connection.inputStream 
+			} catch (e) {
+				this.error = true
+				this.exception = e
+				result = this.connection.errorStream
+			}
 		}
 		return result
 	}

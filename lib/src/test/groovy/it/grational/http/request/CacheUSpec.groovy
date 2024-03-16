@@ -171,7 +171,7 @@ class CacheUSpec extends Specification {
 			def missOperation = { missCounter++ }
 		and:
 			Boolean missOpBefore = false
-			Boolean cacheErrors  = true
+			Boolean cacheErrors = true
 		and: 'a real cached connection'
 			Duration leaseTime = Duration.ofSeconds(1)
 			Cache cachedRequest = new Cache (
