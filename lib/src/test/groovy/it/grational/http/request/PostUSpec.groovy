@@ -83,7 +83,7 @@ class PostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withHeader (
 					"Accept",
@@ -146,7 +146,7 @@ class PostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withHeader (
 					"Accept",

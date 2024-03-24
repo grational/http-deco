@@ -16,7 +16,7 @@ class Delete extends StandardRequest {
 	 * @param url the URL to connect to
 	 * @param params the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 * @param proxy: an instance of the java.net.Proxy class or its local subtypes HttpProxy, HttpAuthProxy
 	 */
 	Delete (
@@ -40,7 +40,7 @@ class Delete extends StandardRequest {
 	 * - readTimeout: milliseconds to wait before reading the response
 	 * - parameters: the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 * - proxy: an instance of the java.net.Proxy class or its local subtypes HttpProxy, HttpAuthProxy
 	 */
 	Delete(Map params) {

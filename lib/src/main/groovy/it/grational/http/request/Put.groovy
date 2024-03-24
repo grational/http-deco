@@ -9,7 +9,7 @@ class Put extends StandardRequest {
 	 * @param body the body to be passed to the url
 	 * @param cp the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 */
 	Put (
 		URL url,
@@ -22,6 +22,8 @@ class Put extends StandardRequest {
 		this.body = body
 		this.parameters = params ?: [:]
 		this.proxy = proxy
+		this.charset = params.charset
+			?: Constants.defaultCharset
 	}
 
 	/**
@@ -45,7 +47,7 @@ class Put extends StandardRequest {
 	 * - readTimeout: milliseconds to wait before reading the response
 	 * - parameters: the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 * - proxy: an instance of the java.net.Proxy class or its local subtypes HttpProxy, HttpAuthProxy
 	 */
 	Put(Map params) {

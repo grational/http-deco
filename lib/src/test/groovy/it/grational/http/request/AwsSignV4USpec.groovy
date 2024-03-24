@@ -63,7 +63,7 @@ class AwsSignV4USpec extends Specification {
 					urlEqualTo(relativeReference)
 				)
 				.withHeader('Host', matching('localhost:4444'))
-				.withHeader('Content-Type', matching('application/json'))
+				.withHeader('Content-Type', containing('application/json'))
 				.withHeader('X-Amz-Date', matching(timestamp))
 				.withHeader (
 					'Authorization',
@@ -115,7 +115,7 @@ class AwsSignV4USpec extends Specification {
 					urlEqualTo(relativeReference)
 				)
 				.withHeader('Host', matching('localhost:4444'))
-				.withHeader('Content-Type', matching('application/json'))
+				.withHeader('Content-Type', containing('application/json'))
 				.withHeader('X-Amz-Date', matching(timestamp))
 				.withHeader (
 					'Authorization',

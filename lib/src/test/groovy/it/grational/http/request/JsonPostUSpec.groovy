@@ -55,7 +55,7 @@ class JsonPostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(stringInput)
@@ -80,7 +80,7 @@ class JsonPostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(stringInput)
@@ -113,7 +113,7 @@ class JsonPostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson (
@@ -138,7 +138,7 @@ class JsonPostUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson (

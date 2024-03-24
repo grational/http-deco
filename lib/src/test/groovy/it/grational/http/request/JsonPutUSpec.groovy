@@ -55,7 +55,7 @@ class JsonPutUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(stringInput)
@@ -80,7 +80,7 @@ class JsonPutUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(stringInput)
@@ -114,7 +114,7 @@ class JsonPutUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(JsonOutput.toJson(mapInput))
@@ -137,7 +137,7 @@ class JsonPutUSpec extends Specification {
 				)
 				.withHeader (
 					'Content-Type',
-					equalTo(contentTypeHeader)
+					containing(contentTypeHeader)
 				)
 				.withRequestBody (
 					equalToJson(JsonOutput.toJson(mapInput))

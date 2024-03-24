@@ -1,6 +1,7 @@
 package it.grational.http.request
 
 import it.grational.http.response.HttpResponse
+import it.grational.http.shared.Constants
 import java.net.URLEncoder
 import java.net.URL
 import java.time.format.DateTimeFormatter
@@ -119,9 +120,17 @@ class AwsSignV4 extends FunctionalRequest {
 		addHeaderIfMissing(hs, 'Host', origin.url.host)
 		addHeaderIfMissing(hs, 'X-Amz-Date', iso8601Timestamp)
 		if ( service == AWS_S3_SERVICE )
-			addHeaderIfMissing(hs, 'X-Amz-Content-Sha256', hex(hash(origin.body)))
+			addHeaderIfMissing (
+				hs,
+				'X-Amz-Content-Sha256',
+				hex(hash(origin.body, origin.charset))
+			)
 		if ( sessionToken )
-			addHeaderIfMissing(hs, 'X-Amz-Security-Token', sessionToken)
+			addHeaderIfMissing (
+				hs,
+				'X-Amz-Security-Token',
+				sessionToken
+			)
 	}
 
 	private void addHeaderIfMissing(Map hs, String h, String v) {
@@ -232,7 +241,10 @@ class AwsSignV4 extends FunctionalRequest {
 		input.digest(DIGEST_ALGORITHM)
 	}
 
-	private String hex(String input, String charset = UTF_8) {
+	private String hex (
+		String input,
+		String charset = Constants.defaultCharset
+	) {
 		hex(input.getBytes(charset))
 	}
 
@@ -295,7 +307,7 @@ class AwsSignV4 extends FunctionalRequest {
 	private String awsUrlEncode (
 		String value,
 		Boolean path = false,
-		String encoding = UTF_8
+		String encoding = Constants.defaultCharset
 	) {
 		if (!value) return ""
 

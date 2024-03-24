@@ -1,7 +1,6 @@
 package it.grational.http.request
 
 import java.nio.charset.Charset
-import static java.nio.charset.StandardCharsets.*
 
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
@@ -9,6 +8,7 @@ import it.grational.http.header.Authorization
 import it.grational.proxy.NoProxy
 import it.grational.proxy.EnvVar
 import it.grational.proxy.EnvProxy
+import it.grational.http.shared.Constants
 
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
@@ -31,14 +31,16 @@ abstract class StandardRequest implements HttpRequest {
 
 	protected String    method
 	protected URL       url
+	protected Charset   charset = Constants.defaultCharset
 	protected String    body
 	protected Map       parameters
 	protected Proxy     proxy
+
 	private static final String urlPattern =
 		$/(?<protocol>[^:]{3,})://(?:[^:]+:(?:[^@]*@)+)?(?<residual>.*)/$
 
 	@Override
-	HttpResponse connect(Charset charset = UTF_8) {
+	HttpResponse connect() {
 		Response result
 
 		enableCookieManagementIfNeeded()
@@ -75,6 +77,8 @@ abstract class StandardRequest implements HttpRequest {
 
 			if (this.url.userInfo)
 				this.parameters.headers << this.addBasicAuth(this.url.userInfo)
+			
+			appendContentTypeCharset(this.parameters.headers)
 
 			this.parameters.headers.each { k, v ->
 				setRequestProperty(k,v)
@@ -97,6 +101,14 @@ abstract class StandardRequest implements HttpRequest {
 			)
 		}
 		return result
+	}
+
+	protected void appendContentTypeCharset(Map headers = [:]) {
+		if ( !headers['Content-Type'] )
+			return
+		if ( headers['Content-Type'].contains('charset') )
+			return
+		headers['Content-Type'] += "; charset=${this.charset.name()}"
 	}
 
 	private void enableCookieManagementIfNeeded() {

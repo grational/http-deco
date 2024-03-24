@@ -1,6 +1,7 @@
 package it.grational.http.request
 
 import groovy.json.JsonOutput
+import it.grational.http.shared.Constants
 
 class JsonPost extends Post {
 
@@ -13,7 +14,7 @@ class JsonPost extends Post {
 	 * @param headers the request properties (custom headers added to the request)
 	 * @param parameters the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 */
 	JsonPost(Map params) {
 		super (
@@ -23,11 +24,13 @@ class JsonPost extends Post {
 			connectTimeout: params.connectTimeout,
 			readTimeout: params.readTimeout,
 			headers: ( params.headers ?: [:] ) << [
-				'Content-Type': 'application/json',
+				'Content-Type': 'application/json'
 			],
 			cookies: params.cookies,
 			proxy: params.proxy
 		)
+		this.charset = params.charset
+			?: Constants.defaultCharset
 	}
 
 	/**
@@ -37,7 +40,7 @@ class JsonPost extends Post {
 	 * @param json the string body to be passed to the url
 	 * @param cp the connection parameters as specified here:
 	 * http://docs.groovy-lang.org/latest/html/groovy-jdk/java/net/URL.html#getText(java.util.Map)
-	 * http://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
+	 * https://mrhaki.blogspot.it/2011/09/groovy-goodness-use-connection.html
 	 * @param proxy: an instance of the java.net.Proxy class or its local subtypes HttpProxy, HttpAuthProxy
 	 */
 	JsonPost (

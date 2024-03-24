@@ -3,6 +3,7 @@ package it.grational.http.response
 import groovy.transform.Memoized
 import java.nio.charset.Charset
 import static java.nio.charset.StandardCharsets.*
+import static it.grational.http.shared.Constants.*
 
 interface HttpResponse {
 	Integer code()
@@ -32,7 +33,7 @@ interface HttpResponse {
 
 		@Override
 		byte[] bytes() {
-			this.text(UTF_8, exceptions).getBytes(UTF_8)
+			this.text(defaultCharset, exceptions).getBytes(defaultCharset)
 		}
 
 		@Override
@@ -42,7 +43,7 @@ interface HttpResponse {
 
 		@Override
 		byte[] bytes(Boolean exceptions) {
-			this.text(UTF_8, exceptions).getBytes(UTF_8)
+			this.text(defaultCharset, exceptions).getBytes(defaultCharset)
 		}
 
 		@Override
@@ -52,7 +53,7 @@ interface HttpResponse {
 
 		@Override
 		String text() {
-			this.text(UTF_8, exceptions)
+			this.text(defaultCharset, exceptions)
 		}
 
 		@Override
@@ -62,7 +63,7 @@ interface HttpResponse {
 
 		@Override
 		String text(Boolean exceptions) {
-			this.text(UTF_8, exceptions)
+			this.text(defaultCharset, exceptions)
 		}
 
 	}
