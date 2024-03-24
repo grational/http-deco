@@ -2,6 +2,7 @@ package it.grational.http.request
 
 import it.grational.http.response.HttpResponse
 import static java.net.HttpURLConnection.*
+import it.grational.http.shared.Constants
 
 class Redirections extends FunctionalRequest {
 
@@ -46,9 +47,18 @@ class Redirections extends FunctionalRequest {
 
 	private void setNewDestination(HttpResponse response) {
 		String location = response.header('Location')
-		location = URLDecoder.decode(location, 'UTF-8')
+		location = URLDecoder.decode (
+			location,
+			charsetFromContentType (
+				response.header('Content-Type')
+			)
+		)
 		URL newDestination = new URL(this.origin.url, location)
 		this.origin = this.origin.withURL(newDestination)
+	}
+
+	private String charsetFromContentType(String header) {
+		header?.find(/(?<=charset=).*/) ?: Constants.defaultCharset
 	}
 
 }
