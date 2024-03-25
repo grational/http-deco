@@ -117,6 +117,7 @@ class AwsSignV4 extends FunctionalRequest {
 
 	private void enrichHeaders() {
 		Map hs = origin.parameters.headers
+		this.origin.appendContentTypeCharset(hs)
 		addHeaderIfMissing(hs, 'Host', origin.url.host)
 		addHeaderIfMissing(hs, 'X-Amz-Date', iso8601Timestamp)
 		if ( service == AWS_S3_SERVICE )
