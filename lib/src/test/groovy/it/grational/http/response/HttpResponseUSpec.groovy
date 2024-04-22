@@ -2,6 +2,8 @@ package it.grational.http.response
 
 import spock.lang.*
 import static java.net.HttpURLConnection.*
+import support.JsonClass
+import support.SubJsonClass
 
 class HttpResponseUSpec extends Specification {
 
@@ -61,6 +63,45 @@ class HttpResponseUSpec extends Specification {
 		and:
 			firstTime == expected
 			secondTime == expected
+	}
+
+	def "Should be able to parse a json response into an object"() {
+		given: 'a json text response'
+			String jsonResponse = '''
+			|{
+			|	"firstKey": "firstValue",
+			|	"secondKey": "secondValue",
+			|	"arrayKey": [ 1, 2 ],
+			|	"subObjectKey": {
+			|		"firstSubKey": "firstSubValue"
+			|	}
+			|}'''.stripMargin()
+
+		and: 'a corresponding class'
+			JsonClass expected = new JsonClass (
+				firstKey: 'firstValue',
+				secondKey: 'secondValue',
+				arrayKey: [ 1, 2 ],
+				subObjectKey: new SubJsonClass (
+					firstSubKey: 'firstSubValue'
+				)
+			)
+
+		and: 'a custom http response'
+			HttpResponse customResponse = new HttpResponse.CustomResponse (
+				HTTP_OK,
+				new ByteArrayInputStream (
+					jsonResponse.getBytes()
+				)
+			)
+
+		when:
+			JsonClass parsedResponse = customResponse.jsonObject(JsonClass)
+
+		then:
+			noExceptionThrown()
+		and:
+			parsedResponse == expected
 	}
 
 }

@@ -1,6 +1,7 @@
 package it.grational.http.request
 
 import groovy.json.JsonOutput
+import it.grational.http.shared.Constants
 
 class JsonPut extends Put {
 

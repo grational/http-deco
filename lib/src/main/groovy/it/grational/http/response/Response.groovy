@@ -3,9 +3,11 @@ package it.grational.http.response
 import groovy.transform.Memoized
 import java.nio.charset.Charset
 import static java.net.HttpURLConnection.*
+import groovy.json.JsonSlurper
 
 class Response extends HttpResponse.StandardResponse {
 	private URLConnection connection
+	private static final JsonSlurper js = new JsonSlurper()
 
 	@Override
 	Boolean error() {
@@ -60,6 +62,13 @@ class Response extends HttpResponse.StandardResponse {
 		CookieHandler.default.cookieStore.cookies.find { cookie ->
 			cookie.name == name
 		}
+	}
+
+	@Override
+	<T> T jsonObject(Class<T> type, Charset charset, Boolean exceptions) {
+		js.parseText (
+			this.text(charset, exceptions)
+		).asType(type)
 	}
 
 	@Override

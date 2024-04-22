@@ -1,5 +1,7 @@
 package it.grational.http.request
 
+import it.grational.http.shared.Constants
+
 class Put extends StandardRequest {
 
 	/**

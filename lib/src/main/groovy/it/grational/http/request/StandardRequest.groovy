@@ -108,7 +108,7 @@ abstract class StandardRequest implements HttpRequest {
 			return
 		if ( headers['Content-Type'].contains('charset') )
 			return
-		headers['Content-Type'] += "; charset=${this.charset.name()}"
+		headers['Content-Type'] += "; charset=${this.charset.name().toLowerCase()}"
 	}
 
 	private void enableCookieManagementIfNeeded() {

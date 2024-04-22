@@ -100,9 +100,8 @@ publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			groupId = 'com.github.grational'
-			artifactId = 'connection-decorators'
+			artifactId = 'http-decò'
 			version = scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
-
 			from components.java
 		}
 	}

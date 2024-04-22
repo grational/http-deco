@@ -2,6 +2,7 @@ package it.grational.http.response
 
 import groovy.transform.Memoized
 import java.nio.charset.Charset
+import groovy.json.JsonSlurper
 import static java.nio.charset.StandardCharsets.*
 import static it.grational.http.shared.Constants.*
 
@@ -19,6 +20,10 @@ interface HttpResponse {
 	String text(Charset charset, Boolean exceptions)
 	String header(String name)
 	HttpCookie cookie(String name)
+	<T> T jsonObject(Class<T> type)
+	<T> T jsonObject(Class<T> type, Charset charset)
+	<T> T jsonObject(Class<T> type, Boolean exceptions)
+	<T> T jsonObject(Class<T> type, Charset charset, Boolean exceptions)
 
 	abstract class StandardResponse implements HttpResponse {
 		protected Integer code
@@ -66,6 +71,21 @@ interface HttpResponse {
 			this.text(defaultCharset, exceptions)
 		}
 
+		@Override
+		<T> T jsonObject(Class<T> type) {
+			this.jsonObject(type, defaultCharset, exceptions)
+		}
+
+		@Override
+		<T> T jsonObject(Class<T> type, Charset charset) {
+			this.jsonObject(type, charset, exceptions)
+		}
+
+		@Override
+		<T> T jsonObject(Class<T> type, Boolean exceptions) {
+			this.jsonObject(type, defaultCharset, exceptions)
+		}
+
 	}
 
 	/**
@@ -73,6 +93,7 @@ interface HttpResponse {
 	 */
 	final class CustomResponse extends StandardResponse {
 		private final InputStream stream
+		private static final JsonSlurper js = new JsonSlurper()
 
 		CustomResponse (
 			Integer code,
@@ -120,6 +141,13 @@ interface HttpResponse {
 				name,
 				'value'
 			)
+		}
+
+		@Override
+		<T> T jsonObject(Class<T> type, Charset charset, Boolean exceptions) {
+			js.parseText (
+				this.text(charset, exceptions)
+			).asType(type)
 		}
 
 		@Override

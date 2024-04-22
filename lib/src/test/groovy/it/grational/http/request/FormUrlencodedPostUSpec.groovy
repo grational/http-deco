@@ -149,8 +149,8 @@ class FormUrlencodedPostUSpec extends Specification {
 		)
 		.withHeader (
 			'Content-Type',
-			equalTo (
-				"${contentTypeHeader}; charset=${charset}"
+			equalToIgnoreCase ( // wiremock has a bug, UTF-8 is always uppercase
+				"${contentTypeHeader}; charset=${charset.name().toLowerCase()}"
 			)
 		)
 

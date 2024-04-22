@@ -73,7 +73,7 @@ class AwsSignV4USpec extends Specification {
 							String.join(', ',
 								"Credential=${commonAccessKeyId}/${date}/${commonRegion}/${commonService}/aws4_request",
 								'SignedHeaders=content-type;host;x-amz-date',
-								'Signature=3f1dd539d4c80b006280d38c80da7a49e8ef9343b56d235c54f7b0bcdf6c7279'
+								'Signature=6f5b99a18d22639f5c2f2b2ef1629cdf6a7e10eb77599efedf490d6de4b064e1'
 							)
 						)
 					)
@@ -125,7 +125,7 @@ class AwsSignV4USpec extends Specification {
 							String.join(', ',
 								"Credential=${commonAccessKeyId}/${date}/${commonRegion}/${commonService}/aws4_request",
 								'SignedHeaders=content-type;host;x-amz-date',
-								'Signature=2e033c20357c39772c765f772913b9bbdb722429f1e88e7bfa582874bf16f802'
+								'Signature=f6b56a48c08d26bcfc153d91063f04923df35bd4d4384172c5979b0018624d69'
 							)
 						)
 					)
