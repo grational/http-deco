@@ -1,4 +1,4 @@
-image::logo-2x.png[width=800]
+image::images/logo-2x.png[width=800]
 
 ## **Introduction**
 
@@ -46,13 +46,30 @@ image::logo-2x.png[width=800]
 
 ## **Installation**
 
-The http-decò library is available through jitpack. To install it, add the following dependency to your `pom.xml` file:
+The http-decò library is available through jitpack. 
 
+To start using it into your project, add the following dependency to your `build.gradle` file:
+
+```groovy
+dependencies {
+	// ...
+	'com.github.grational:http-deco:5.0.0',
+	'org.apache.groovy:groovy:4.0.21',
+	// ...
+}
+```
+
+Or for your `pom.xml` file:
 ```xml
 <dependency>
- <groupId>com.github.grational</groupId>
- <artifactId>http-deco</artifactId>
- <version>5.0.0</version>
+	<groupId>com.github.grational</groupId>
+	<artifactId>http-deco</artifactId>
+	<version>5.0.0</version>
+</dependency>
+<dependency>
+	<groupId>org.apache.groovy</groupId>
+	<artifactId>groovy</artifactId>
+	<version>4.0.21</version>
 </dependency>
 ```
 
@@ -61,26 +78,28 @@ The http-decò library is available through jitpack. To install it, add the foll
 ```groovy
 import it.grational.http.request.*
 
-// Example of GET request
+// Example of a GET request
 def response = new Get("https://www.google.com").connect()
 
-// Example of POST request with JSON payload
+// Example of a POST request with JSON payload
 def json = [name: "John Doe", age: 30]
 response = new JsonPost (
-   url: "https://api.example.com/users",
-   map: [
-      name: 'John Doe',
-      age: 30
-   ]
+	url: "https://api.example.com/users",
+	map: [
+		name: 'John Doe',
+		age: 30
+	]
 ).connect()
 
-// Example of using a decorator for automatic retry
+// Usage example with automatic retry (3)
 def response = new Retry (
    new Get("https://www.polito.it")
 )
 
-// Example of using a decorator for caching
+// Usage example with file caching limited to 5 minutes
 def response = new Cache (
-   new Get("https://www.polito.it")
+	new Get("https://www.polito.it"),
+	new CacheFile(),
+	Duration.ofMinutes(5)
 )
 ```
