@@ -1,12 +1,12 @@
-= http-decò
+image::logo-2x.png[width=800]
 
-**Introduzione**
+## **Introduction**
 
-`http-decò` è una libreria Groovy pensata per semplificare al massimo l'esecuzione di richieste HTTP in questo linguaggio ed in Java. Fornisce un'API concisa e intuitiva per i metodi HTTP di base, oltre a funzionalità avanzate come retry automatici, caching delle richieste e autenticazione AWS.
+`http-decò` is a library designed to make executing HTTP requests in JDK languages as easy as possible. It provides a concise and intuitive API for basic HTTP methods and advanced features such as automatic retries, request caching, and AWS authentication.
 
-**Funzionalità**
+**Features**
 
-* **Metodi HTTP di base:**
+## **Basic HTTP methods:**
 
 ```
 * GET
@@ -16,77 +16,71 @@
 * HEAD
 ```
 
-* **Metodi HTTP di facilitazione:**
+## **Facilitating HTTP methods:**
 
 ```asciidoc
-* POST con payload JSON
-* PUT con payload JSON
-* POST di tipo x-www-form-urlencoded
+* POST with JSON payload
+* PUT with JSON payload
+* POST of type x-www-form-urlencoded
 ```
 
-* **Decoratori:**
+## **Decorators:**
 
 ```asciidoc
-* Retry automatico in caso di fallimento
-* Cache automatica delle richieste con storage file o Redis
-* Redirezione multi host
-* Firma per autenticazione AWS v4
+* Automatic retry in case of failure
+* Automatic request caching with file storage or Redis
+* Multi-host redirection
+* AWS v4 authentication signing
 ```
 
-* **Funzionalità aggiuntive:**
+## **Additional features:**
 
 ```asciidoc
-* Supporto alla basic authentication direttamente dalle userinfo delle URL
-* Supporto nativo alle variabili d'ambiente http_proxy, https_proxy, no_proxy
-* Disabilitazione semplice dei controlli HTTPS per test con certificati self-signed
-* Disabilitazione semplice delle eccezioni per le richieste in errore
-* Supporto lineare all'aggiunta di header nelle richieste
-* Supporto lineare all'aggiunta di cookie nelle richieste
+* Support for basic authentication directly from URL userinfo
+* Native support for http_proxy, https_proxy, no_proxy environment variables
+* Easy disabling of HTTPS checks for testing with self-signed certificates
+* Easy disabling of exceptions for failed requests
+* Straightforward support for adding headers to requests
+* Straightforward support for adding cookies to requests
 ```
 
-**Installazione**
+## **Installation**
 
-La libreria http-decò è disponibile tramite jitpack. Per installarla, aggiungi la seguente dipendenza al tuo file `pom.xml`:
+The http-decò library is available through jitpack. To install it, add the following dependency to your `pom.xml` file:
 
 ```xml
 <dependency>
-  <groupId>com.github.grational</groupId>
-  <artifactId>http-deco</artifactId>
-  <version>5.0.0</version>
+ <groupId>com.github.grational</groupId>
+ <artifactId>http-deco</artifactId>
+ <version>5.0.0</version>
 </dependency>
 ```
 
-**Esempio d'uso**
+## **Usage example**
 
 ```groovy
 import it.grational.http.request.*
 
-// Esempio di GET request
+// Example of GET request
 def response = new Get("https://www.google.com").connect()
 
-// Esempio di POST request con payload JSON
+// Example of POST request with JSON payload
 def json = [name: "John Doe", age: 30]
 response = new JsonPost (
-	url: "https://api.example.com/users",
-	map: [
-		name: 'John Doe',
-		age: 30
-	]
+   url: "https://api.example.com/users",
+   map: [
+      name: 'John Doe',
+      age: 30
+   ]
 ).connect()
 
-// Esempio di utilizzo di un decoratore per il retry automatico
+// Example of using a decorator for automatic retry
 def response = new Retry (
-	new Get("https://www.polito.it")
+   new Get("https://www.polito.it")
 )
 
-// Esempio di utilizzo di un decoratore per la cache
+// Example of using a decorator for caching
 def response = new Cache (
-	new Get("https://www.polito.it")
+   new Get("https://www.polito.it")
 )
 ```
-
-**Contributi**
-
-La libreria http-decò è open source e sono graditi i contributi. Se hai trovato un bug o hai un suggerimento per migliorare la libreria, apri pure una issue sulla pagina GitHub del progetto.
-
-**Grazie per aver utilizzato http-decò!**
