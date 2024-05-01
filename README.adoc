@@ -53,8 +53,8 @@ To start using it into your project, add the following dependency to your `build
 ```groovy
 dependencies {
 	// ...
-	'com.github.grational:http-deco:5.0.0',
-	'org.apache.groovy:groovy:4.0.21',
+	'com.github.grational:http-deco:4.4.1',
+	'org.apache.groovy:groovy:3.0.21',
 	// ...
 }
 ```
@@ -64,12 +64,12 @@ Or for your `pom.xml` file:
 <dependency>
 	<groupId>com.github.grational</groupId>
 	<artifactId>http-deco</artifactId>
-	<version>5.0.0</version>
+	<version>4.4.1</version>
 </dependency>
 <dependency>
 	<groupId>org.apache.groovy</groupId>
 	<artifactId>groovy</artifactId>
-	<version>4.0.21</version>
+	<version>3.0.21</version>
 </dependency>
 ```
 
@@ -77,6 +77,8 @@ Or for your `pom.xml` file:
 
 ```groovy
 import it.grational.http.request.*
+import it.grational.cache.*
+import java.time.Duration
 
 // Example of a GET request
 def response = new Get("https://www.google.com").connect()
