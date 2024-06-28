@@ -16,5 +16,5 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'http-decò'
+rootProject.name = 'http-deco'
 include('lib')

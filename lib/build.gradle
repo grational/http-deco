@@ -35,7 +35,7 @@ project.with {
 }
 
 allprojects {
-	sourceCompatibility = 17
+	sourceCompatibility = 8
 	targetCompatibility = sourceCompatibility
 }
 
@@ -100,7 +100,7 @@ publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			groupId = 'com.github.grational'
-			artifactId = 'http-decò'
+			artifactId = 'http-deco'
 			version = scmVersion.version // '0.5.0' (remove -SNAPSHOT for releases)
 			from components.java
 		}

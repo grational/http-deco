@@ -53,7 +53,7 @@ To start using it into your project, add the following dependency to your `build
 ```groovy
 dependencies {
 	// ...
-	'com.github.grational:http-deco:4.4.1',
+	'com.github.grational:http-deco:4.5.0',
 	'org.apache.groovy:groovy:3.0.21',
 	// ...
 }
@@ -64,7 +64,7 @@ Or for your `pom.xml` file:
 <dependency>
 	<groupId>com.github.grational</groupId>
 	<artifactId>http-deco</artifactId>
-	<version>4.4.1</version>
+	<version>4.5.0</version>
 </dependency>
 <dependency>
 	<groupId>org.apache.groovy</groupId>

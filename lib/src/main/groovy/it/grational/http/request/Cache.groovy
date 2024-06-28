@@ -8,7 +8,7 @@ import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
 
 /*
- * NOTE: the cache container should not be valid 
+ * NOTE: the cache container should not be valid
  * if it is empty to make the cache to work properly
  */
 class Cache extends FunctionalRequest {
