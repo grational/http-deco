@@ -724,5 +724,54 @@ class GetUSpec extends Specification {
 			noExceptionThrown()
 	}
 
+	def "Should be capable of returning a byte content without corrupting it"() {
+		given:
+			byte[] binaryContent = hex2bytes ("""\
+			|674f 5367 0200 0000 0000 0000 0000 977d
+			|ef47 0000 0000 599b f3da 2a01 7480 6568
+			|726f 0361 0102 1e00 1100 0100 00e0 0e01
+			|0200 0000 1e00 0000 0100 0000 0001 0100
+			|3500 e067 c000 674f 5367 0200 0000 0000""".stripMargin())
+		and:
+			String path = '/response/in/bytes'
+			URL pathURL = "${ms.origin}${path}".toURL()
+		and:
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn (
+					aResponse().withHeader (
+						'Content-Type',
+						'application/octet-stream'
+					)
+					.withBody(binaryContent)
+				)
+			)
+
+		when:
+			HttpResponse response = new Get(pathURL).connect()
+
+			println "response (${response.getClass()}) -> ${response}"
+
+		then:
+			ms.verify (
+				1,
+				getRequestedFor (
+					urlPathEqualTo(path)
+				)
+			)
+		and:
+			response.code() == ms.ok.code
+			response.bytes() == binaryContent
+		and:
+			response.bytes() == binaryContent
+			noExceptionThrown()
+	}
+
+	private byte[] hex2bytes(String input) {
+		return input.readLines()
+			.join(' ')
+			.split(/\s+/)
+			.collect { Integer.parseInt(it, 16) as byte }
+	}
 
 }

@@ -36,6 +36,12 @@ class Response extends HttpResponse.StandardResponse {
 		this.openInput(exceptions).getText(charset.name())
 	}
 
+	@Memoized
+	@Override
+	byte[] bytes(Boolean exceptions) {
+		this.openInput(exceptions).getBytes()
+	}
+
 	private InputStream openInput(Boolean exceptions) {
 		InputStream result
 		if ( exceptions ) {

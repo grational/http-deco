@@ -11,9 +11,7 @@ interface HttpResponse {
 	Boolean error()
 	Throwable exception()
 	byte[] bytes()
-	byte[] bytes(Charset charset)
 	byte[] bytes(Boolean exceptions)
-	byte[] bytes(Charset charset, Boolean exceptions)
 	String text()
 	String text(Charset charset)
 	String text(Boolean exceptions)
@@ -38,22 +36,7 @@ interface HttpResponse {
 
 		@Override
 		byte[] bytes() {
-			this.text(defaultCharset, exceptions).getBytes(defaultCharset)
-		}
-
-		@Override
-		byte[] bytes(Charset charset) {
-			this.text(charset).getBytes(charset)
-		}
-
-		@Override
-		byte[] bytes(Boolean exceptions) {
-			this.text(defaultCharset, exceptions).getBytes(defaultCharset)
-		}
-
-		@Override
-		byte[] bytes(Charset charset, Boolean exceptions) {
-			this.text(charset, exceptions).getBytes(charset)
+			this.bytes(exceptions)
 		}
 
 		@Override
@@ -126,8 +109,15 @@ interface HttpResponse {
 		String text(Charset charset, Boolean exceptions) {
 			if (exceptions && this.exception)
 				throw this.exception
-			else
-				this.stream.getText(charset.name())
+			return this.stream.getText(charset.name())
+		}
+
+		@Memoized
+		@Override
+		byte[] bytes(Boolean exceptions) {
+			if (exceptions && this.exception)
+				throw this.exception
+			return this.stream.getBytes()
 		}
 
 		@Override
