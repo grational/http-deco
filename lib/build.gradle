@@ -57,7 +57,7 @@ dependencies {
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
 		'org.spockframework:spock-core:2.3-groovy-3.0',
-		"com.github.grational:specification-support:release-1.0.0"
+		"com.github.grational:specification-support:release-1.1.3"
 	)
 }
 

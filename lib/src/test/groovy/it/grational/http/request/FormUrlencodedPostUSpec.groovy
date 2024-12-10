@@ -23,7 +23,7 @@ class FormUrlencodedPostUSpec extends Specification {
 	]
 
 	def setupSpec() {
-		ms = new MockServer(port: 3535)
+		ms = new MockServer(port: 3636)
 		ms.start()
 
   	ms.stubFor (
@@ -155,8 +155,12 @@ class FormUrlencodedPostUSpec extends Specification {
 		)
 
 		params.each { k, v ->
-			result.withFormParam (
-				(k as String), equalTo(v as String)
+			// with wiremock 3.x one could use the more specific
+			// result.withFormParam (
+			// 	(k as String), equalTo(v as String)
+			// )
+			result.withRequestBody (
+				containing("${k}=${v}")
 			)
 		}
 
