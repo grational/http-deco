@@ -104,4 +104,22 @@ class HttpResponseUSpec extends Specification {
 			parsedResponse == expected
 	}
 
+	def "Should be capable of getting the URL associated with a response"() {
+		given:
+			URL url = 'http://given.url.io'.toURL()
+		and:
+			HttpResponse response = new HttpResponse.CustomResponse (
+				HTTP_OK,
+				new ByteArrayInputStream (
+					'expected text response'.getBytes()
+				),
+				false,
+				null,
+				url
+			)
+
+		expect:
+			response.url() == url
+	}
+
 }

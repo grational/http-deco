@@ -7,6 +7,7 @@ import static java.nio.charset.StandardCharsets.*
 import static it.grational.http.shared.Constants.*
 
 interface HttpResponse {
+	URL url()
 	Integer code()
 	Boolean error()
 	Throwable exception()
@@ -75,6 +76,7 @@ interface HttpResponse {
 	 * Fake class modelling an example custom response
 	 */
 	final class CustomResponse extends StandardResponse {
+		private final URL url
 		private final InputStream stream
 		private static final JsonSlurper js = new JsonSlurper()
 
@@ -82,12 +84,19 @@ interface HttpResponse {
 			Integer code,
 			InputStream stream,
 			Boolean error = false,
-			Throwable exception = null
+			Throwable exception = null,
+			URL url = 'http://localhost'.toURL()
 		) {
 			this.code = code
 			this.stream = stream
 			this.error = error
 			this.exception = exception
+			this.url = url
+		}
+
+		@Override 
+		URL url() {
+			this.url
 		}
 
 		@Override 

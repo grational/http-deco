@@ -30,6 +30,11 @@ class Response extends HttpResponse.StandardResponse {
 		return result
 	}
 
+	@Override
+	URL url() {
+		this.connection.getURL()
+	}
+
 	@Memoized
 	@Override
 	String text(Charset charset, Boolean exceptions) {

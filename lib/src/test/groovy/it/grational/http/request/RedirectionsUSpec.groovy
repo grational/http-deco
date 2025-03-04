@@ -82,6 +82,7 @@ class RedirectionsUSpec extends Specification {
 		and:
 			response.code() == https.ok.code
 			response.text() == https.ok.body
+			response.url()  == destination.toURL()
 	}
 
 	def "Should not follow more than the given number of redirects"() {
@@ -161,6 +162,8 @@ class RedirectionsUSpec extends Specification {
 		and:
 			response.code() == HTTP_MOVED_TEMP
 			response.text() == temporaryRedirectBody
+			response.url()  == temporaryRedirect.toURL()
 	}
+
   // 4. helper methods
 }
