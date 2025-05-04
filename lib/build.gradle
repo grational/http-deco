@@ -13,18 +13,12 @@ plugins {
 	// required by jitpack
 	id 'maven-publish'
 	// awesome git tag / gradle version integration
-	id 'pl.allegro.tech.build.axion-release' version '1.14.5'
+	id 'pl.allegro.tech.build.axion-release' version '1.18.8'
 }
 
 // [general] configuration
 project.ext {
-	groovyVersion = '3.0.21'
-}
-
-scmVersion {
-	tag {
-		prefix = 'release-'
-	}
+	groovyVersion = '4.0.26'
 }
 
 project.with {
@@ -34,8 +28,10 @@ project.with {
 	description 'Provide all major HTTP method implementations and additional functionalities as caching and retrying.'
 }
 
-allprojects {
-	sourceCompatibility = 8
+java {
+	// java features available in the source code
+	sourceCompatibility = JavaVersion.toVersion('21')
+	// java version 21 is required to execute the project
 	targetCompatibility = sourceCompatibility
 }
 
@@ -47,8 +43,8 @@ repositories {
 
 dependencies {
 	api (
-		"org.codehaus.groovy:groovy:$groovyVersion",
-		"org.codehaus.groovy:groovy-json:$groovyVersion",
+		"org.apache.groovy:groovy:$groovyVersion",
+		"org.apache.groovy:groovy-json:$groovyVersion",
 		'com.github.grational:cache-containers:release-1.2.0',
 		'com.github.grational:url-decorators:release-2.1.1',
 		'com.github.grational:proxy-environment:release-1.3.0'
@@ -56,8 +52,8 @@ dependencies {
 
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
-		'org.spockframework:spock-core:2.3-groovy-3.0',
-		"com.github.grational:specification-support:release-1.1.3"
+		'org.spockframework:spock-core:2.3-groovy-4.0',
+		'com.github.grational:specification-support:release-1.1.3'
 	)
 }
 
