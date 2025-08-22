@@ -20,8 +20,16 @@ class Response extends HttpResponse.StandardResponse {
 		if ( this.exception ) {
 			result = this.exception
 		} else if ( this.error() ) {
-			this.text(false)
-			result = this.exception
+			try {
+				this.text(false)
+				result = this.exception
+			} catch (Exception te) {
+				result = new IOException (
+					"HTTP Error ${this.code ?: 'Unknown'}: Unable to read error details",
+					te
+				)
+				this.exception = result
+			}
 		} else {
 			throw new IllegalStateException (
 				"No exception were been thrown at this moment!"
