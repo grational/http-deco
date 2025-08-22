@@ -15,6 +15,10 @@ class RetryUSpec extends Specification {
 	@Shared HttpResponse okResponse
 	@Shared String unexpectedContent = 'Error response'
 	@Shared HttpResponse koResponse
+	@Shared HttpResponse notFoundResponse
+	@Shared HttpResponse badRequestResponse
+	@Shared HttpResponse unauthorizedResponse
+	@Shared HttpResponse serverErrorResponse
 
 	@Shared MockServer ms
 
@@ -27,12 +31,44 @@ class RetryUSpec extends Specification {
 			)
 		)
 		koResponse = new HttpResponse.CustomResponse (
-			HTTP_BAD_REQUEST,
+			HTTP_INTERNAL_ERROR,
 			new ByteArrayInputStream (
 				unexpectedContent.bytes
 			),
 			true,
-			new IOException("Your request was a bad one")
+			new IOException("Internal server error")
+		)
+		notFoundResponse = new HttpResponse.CustomResponse (
+			404,
+			new ByteArrayInputStream (
+				"Not Found".bytes
+			),
+			true,
+			new IOException("Resource not found")
+		)
+		badRequestResponse = new HttpResponse.CustomResponse (
+			400,
+			new ByteArrayInputStream (
+				"Bad Request".bytes
+			),
+			true,
+			new IOException("Bad request")
+		)
+		unauthorizedResponse = new HttpResponse.CustomResponse (
+			401,
+			new ByteArrayInputStream (
+				"Unauthorized".bytes
+			),
+			true,
+			new IOException("Unauthorized")
+		)
+		serverErrorResponse = new HttpResponse.CustomResponse (
+			500,
+			new ByteArrayInputStream (
+				"Internal Server Error".bytes
+			),
+			true,
+			new IOException("Server error")
 		)
 
 		ms = new MockServer(port: 1111)
@@ -80,22 +116,76 @@ class RetryUSpec extends Specification {
 
 	def "Should try to hit a closed port retries times before throwing a runtime exception"() {
 		setup:
-			HttpRequest get = new Get(ms.url)
+			def closedPortUrl = "http://localhost:9999/closed".toURL()
+			HttpRequest get = new Get(closedPortUrl)
 			HttpRequest retry = new Retry(get, retries)
 
 		when:
 			HttpResponse response = retry.connect()
 
 		then: 'The limit exceeded RuntimeException is thrown'
-			ms.verify (
-				3,
-				getRequestedFor (
-					urlPathEqualTo(ms.path)
-				)
-			)
-		and:
 			def exception = thrown(RuntimeException)
-			exception.message == "Retry limit (3) exceeded for connection '${get}' with exception: 'java.io.FileNotFoundException: ${ms.url}'"
+			exception.message.contains("Retry limit (3) exceeded")
+			exception.message.contains("ConnectException") || exception.message.contains("Connection refused")
+	}
+
+	def "Should not retry on 404 Not Found and return immediately"() {
+		setup:
+			HttpRequest get = Mock()
+
+		when: 'the request returns 404'
+			HttpResponse actualResult = new Retry(get, retries).connect()
+
+		then: 'only 1 get.connect() call is made'
+			1 * get.connect() >> notFoundResponse
+		and: 'the 404 response is returned immediately without retries'
+			actualResult.code() == 404
+			actualResult.text(false) == "Not Found"
+	}
+
+	def "Should not retry on 400 Bad Request and return immediately"() {
+		setup:
+			HttpRequest get = Mock()
+
+		when: 'the request returns 400'
+			HttpResponse actualResult = new Retry(get, retries).connect()
+
+		then: 'only 1 get.connect() call is made'
+			1 * get.connect() >> badRequestResponse
+		and: 'the 400 response is returned immediately without retries'
+			actualResult.code() == 400
+			actualResult.text(false) == "Bad Request"
+	}
+
+	def "Should not retry on 401 Unauthorized and return immediately"() {
+		setup:
+			HttpRequest get = Mock()
+
+		when: 'the request returns 401'
+			HttpResponse actualResult = new Retry(get, retries).connect()
+
+		then: 'only 1 get.connect() call is made'
+			1 * get.connect() >> unauthorizedResponse
+		and: 'the 401 response is returned immediately without retries'
+			actualResult.code() == 401
+			actualResult.text(false) == "Unauthorized"
+	}
+
+	def "Should retry on 500 Server Error"() {
+		setup:
+			HttpRequest get = Mock()
+			Integer counter = 1
+
+		when: 'the request returns 500 then 200'
+			HttpResponse actualResult = new Retry(get, retries).connect()
+
+		then: '2 get.connect() calls are made'
+			2 * get.connect() >> {
+				( counter++ == 1 ) ? serverErrorResponse : okResponse
+			}
+		and: 'the final successful response is returned'
+			actualResult.code() == HTTP_OK
+			actualResult.text() == expectedContent
 	}
 
 }

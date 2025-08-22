@@ -28,6 +28,9 @@ class Retry extends FunctionalRequest {
 				if ( ok(response) )
 					return response
 
+				if ( shouldNotRetry(response) )
+					return response
+
 				if ( retry(time) )
 					continue
 
@@ -41,6 +44,10 @@ class Retry extends FunctionalRequest {
 
 	private Boolean ok(HttpResponse response) {
 		return !response.error()
+	}
+
+	private Boolean shouldNotRetry(HttpResponse response) {
+		return response.code() >= 400 && response.code() < 500
 	}
 
 	private Boolean retry(Integer time) {
