@@ -183,8 +183,8 @@ abstract class StandardRequest implements HttpRequest {
 	protected Map addBasicAuth(String userInfo) {
 		def (user,pass) = userInfo.tokenize(':')
 		def auth = new Authorization (
-			username: user,
-			password: pass
+			username: URLDecoder.decode(user, 'UTF-8'),
+			password: URLDecoder.decode(pass, 'UTF-8')
 		)
 		return [ (auth.name()): auth.value() ]
 	}
