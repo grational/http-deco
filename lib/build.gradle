@@ -18,8 +18,8 @@ plugins {
 
 // [general] configuration
 project.ext {
-	groovyGroupId = 'org.apache.groovy'
-	groovyVersion = '4.0.29'
+	groovyGroupId = 'org.codehaus.groovy'
+	groovyVersion = '3.0.25'
 }
 
 project.with {
@@ -31,7 +31,7 @@ project.with {
 
 java {
 	// java features available in the source code
-	sourceCompatibility = JavaVersion.toVersion('21')
+	sourceCompatibility = JavaVersion.toVersion('8')
 	// java version 21 is required to execute the project
 	targetCompatibility = sourceCompatibility
 }
@@ -54,7 +54,7 @@ dependencies {
 
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
-		'org.spockframework:spock-core:2.3-groovy-4.0',
+		'org.spockframework:spock-core:2.3-groovy-3.0',
 		'com.github.grational:specification-support:release-1.1.3',
 		"$groovyGroupId:groovy-dateutil:$groovyVersion"
 	)
