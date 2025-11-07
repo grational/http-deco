@@ -19,8 +19,8 @@ plugins {
 // [flavor] compatibility matrix
 project.ext {
 	toolchainVersion   = 25
-	jvmVersion         = 17
-	groovy             = [major: 5, minor: 0, patch: 4]
+	jvmVersion         = 8
+	groovy             = [major: 3, minor: 0, patch: 25]
 	groovyGroup        = groovy.major >= 4 ? 'apache' : 'codehaus'
 	groovyVersion      = groovy.values().join('.')
 	flavor             = "java-${jvmVersion}-groovy-${groovy.major}"
