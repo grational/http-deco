@@ -293,7 +293,7 @@ class GetUSpec extends Specification {
 		given:
 			Map credentials = [
 				user: 'username',
-				pass: 'password'
+				pass: 'j9%&xupsSpQa%'
 			]
 			String userInfo = "${credentials.user}:${credentials.pass}"
 		and:
