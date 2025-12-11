@@ -2,7 +2,7 @@ package it.grational.http.request;
 
 import it.grational.http.header.Authorization;
 import it.grational.http.response.HttpResponse;
-import it.grational.http.response.Response;
+import it.grational.http.response.JdkHttpResponse;
 import it.grational.http.shared.Constants;
 import it.grational.proxy.EnvProxy;
 import it.grational.proxy.EnvVar;
@@ -10,11 +10,12 @@ import it.grational.proxy.NoProxy;
 
 import javax.net.ssl.*;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.*;
+import java.net.http.HttpClient;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,71 +42,117 @@ public abstract class StandardRequest implements HttpRequest {
 		}
 		enableCookieManagementIfNeeded();
 
-		if (Boolean.TRUE.equals(parameters.get("insecure"))) {
-			insecure();
-		}
+		try {
+			// Build HttpClient
+			HttpClient.Builder clientBuilder = HttpClient.newBuilder();
 
-		Proxy p = proxyFromEnvironment();
-		URLConnection connection = this.url.openConnection(p);
+			// Proxy
+			Proxy p = proxyFromEnvironment();
+			if (p != null && p != Proxy.NO_PROXY && p.address() != null) {
+				clientBuilder.proxy(ProxySelector.of((InetSocketAddress) p.address()));
+			} else {
+				clientBuilder.proxy(ProxySelector.of(null));
+			}
 
-		if (connection instanceof HttpURLConnection) {
-			((HttpURLConnection) connection).setRequestMethod(this.method);
-
+			// Redirects
 			if (parameters.containsKey("followRedirects")) {
-				Object val = parameters.get("followRedirects");
-				if (val != null) {
-					((HttpURLConnection) connection).setInstanceFollowRedirects((Boolean) val);
+				Boolean follow = (Boolean) parameters.get("followRedirects");
+				if (Boolean.TRUE.equals(follow)) {
+					clientBuilder.followRedirects(HttpClient.Redirect.NORMAL);
+				} else {
+					clientBuilder.followRedirects(HttpClient.Redirect.NEVER);
+				}
+			} else {
+				// Default: follow redirects (matches HttpURLConnection default behavior)
+				clientBuilder.followRedirects(HttpClient.Redirect.NORMAL);
+			}
+
+			// Connect Timeout
+			if (parameters.get("connectTimeout") != null) {
+				clientBuilder.connectTimeout(
+					Duration.ofMillis((Integer) parameters.get("connectTimeout"))
+				);
+			}
+
+			// Cookie Handler
+			if (CookieHandler.getDefault() != null) {
+				clientBuilder.cookieHandler(CookieHandler.getDefault());
+			}
+
+			// SSL (Insecure)
+			if (Boolean.TRUE.equals(parameters.get("insecure"))) {
+				SSLContext insecureContext = insecureSSLContext();
+				clientBuilder.sslContext(insecureContext);
+				// Disable hostname verification - empty string disables endpoint identification
+				SSLParameters sslParams = insecureContext.getDefaultSSLParameters();
+				sslParams.setEndpointIdentificationAlgorithm("");
+				clientBuilder.sslParameters(sslParams);
+			}
+
+			HttpClient client = clientBuilder.build();
+
+			// Build HttpRequest
+			// Strip userInfo from URL for URI conversion (it's added as Authorization header)
+			URL requestUrl = this.url;
+			if (this.url.getUserInfo() != null) {
+				String urlStr = this.url.toString();
+				String userInfo = this.url.getUserInfo();
+				urlStr = urlStr.replace(userInfo + "@", "");
+				requestUrl = new URL(urlStr);
+			}
+
+			java.net.http.HttpRequest.Builder requestBuilder = java.net.http.HttpRequest.newBuilder()
+				.uri(requestUrl.toURI())
+				.method(
+					this.method,
+					this.body != null
+						? java.net.http.HttpRequest.BodyPublishers.ofString(this.body, this.charset)
+						: java.net.http.HttpRequest.BodyPublishers.noBody()
+				);
+
+			// Headers
+			Map<String, String> headers = getHeaders();
+			if (this.url.getUserInfo() != null) {
+				headers.putAll(this.addBasicAuth(this.url.getUserInfo()));
+			}
+			appendContentTypeCharset(headers);
+
+			// HttpClient restricts certain headers (Host, Connection, etc.) - skip them
+			for (Map.Entry<String, String> entry : headers.entrySet()) {
+				String headerName = entry.getKey();
+				if (!isRestrictedHeader(headerName)) {
+					requestBuilder.header(headerName, entry.getValue());
 				}
 			}
-		}
 
-		if (parameters.get("connectTimeout") != null) {
-			connection.setConnectTimeout((Integer) parameters.get("connectTimeout"));
-		}
-		if (parameters.get("readTimeout") != null) {
-			connection.setReadTimeout((Integer) parameters.get("readTimeout"));
-		}
-		if (parameters.get("allowUserInteraction") != null) {
-			connection.setAllowUserInteraction((Boolean) parameters.get("allowUserInteraction"));
-		}
-		if (parameters.get("useCaches") != null) {
-			connection.setUseCaches((Boolean) parameters.get("useCaches"));
-		}
-
-		Map<String, String> headers = getHeaders();
-		if (this.url.getUserInfo() != null) {
-			headers.putAll(this.addBasicAuth(this.url.getUserInfo()));
-		}
-
-		appendContentTypeCharset(headers);
-
-		for (Map.Entry<String, String> entry : headers.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		if (parameters.get("cookies") != null) {
-			connection.setRequestProperty("Cookie", assembleCookies((Map) parameters.get("cookies")));
-		}
-
-		if (this.body != null) {
-			connection.setDoOutput(true);
-			try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), charset)) {
-				writer.write(this.body);
+			// Cookies
+			if (parameters.get("cookies") != null) {
+				requestBuilder.header("Cookie", assembleCookies((Map) parameters.get("cookies")));
 			}
-		} else {
-			connection.connect();
-		}
 
-		Integer responseCode = null;
-		if (connection instanceof HttpURLConnection) {
-			responseCode = ((HttpURLConnection) connection).getResponseCode();
-		}
+			// Read Timeout
+			if (parameters.get("readTimeout") != null) {
+				requestBuilder.timeout(
+					Duration.ofMillis((Integer) parameters.get("readTimeout"))
+				);
+			}
 
-		return new Response(responseCode, connection);
+			// Send request
+			java.net.http.HttpResponse<byte[]> response = client.send(
+				requestBuilder.build(),
+				java.net.http.HttpResponse.BodyHandlers.ofByteArray()
+			);
+
+			return new JdkHttpResponse(response, this.url);
+
+		} catch (Exception e) {
+			if (e instanceof IOException) throw (IOException) e;
+			throw new IOException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> getHeaders() {
+	protected Map<String, String> getHeaders() {
 		if (!parameters.containsKey("headers")) {
 			parameters.put("headers", new HashMap<String, String>());
 		}
@@ -127,7 +174,7 @@ public abstract class StandardRequest implements HttpRequest {
 		}
 	}
 
-	private Proxy proxyFromEnvironment() {
+	protected Proxy proxyFromEnvironment() {
 		if (this.proxy != null) {
 			return this.proxy;
 		} else if (new NoProxy().exclude(this.url)) {
@@ -139,47 +186,24 @@ public abstract class StandardRequest implements HttpRequest {
 		}
 	}
 
-	private void insecure() {
-		disableServerNameCheck();
-		disableCertificateCheck();
-		disableHostnameCheck();
-	}
-
-	private void disableServerNameCheck() {
-		System.setProperty("jsse.enableSNIExtension", "false");
-	}
-
-	private void disableCertificateCheck() {
-		try {
-			TrustManager[] trustAll = new TrustManager[]{
-					new X509TrustManager() {
-						public X509Certificate[] getAcceptedIssuers() {
-							return null;
-						}
-
-						public void checkClientTrusted(X509Certificate[] certs, String authType) {
-						}
-
-						public void checkServerTrusted(X509Certificate[] certs, String authType) {
-						}
+	protected SSLContext insecureSSLContext() throws Exception {
+		TrustManager[] trustAll = new TrustManager[]{
+				new X509TrustManager() {
+					public X509Certificate[] getAcceptedIssuers() {
+						return null;
 					}
-			};
 
-			SSLContext context = SSLContext.getInstance("SSL");
-			context.init(null, trustAll, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+					public void checkClientTrusted(X509Certificate[] certs, String authType) {
+					}
 
-	private void disableHostnameCheck() {
-		HostnameVerifier alwaysValid = new HostnameVerifier() {
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
+					public void checkServerTrusted(X509Certificate[] certs, String authType) {
+					}
+				}
 		};
-		HttpsURLConnection.setDefaultHostnameVerifier(alwaysValid);
+
+		SSLContext context = SSLContext.getInstance("TLS");
+		context.init(null, trustAll, new SecureRandom());
+		return context;
 	}
 
 	protected Map<String, String> addBasicAuth(String userInfo) {
@@ -209,6 +233,16 @@ public abstract class StandardRequest implements HttpRequest {
 		return cookies.entrySet().stream()
 				.map(e -> e.getKey() + "=" + e.getValue() + ";")
 				.collect(Collectors.joining(" "));
+	}
+
+	private boolean isRestrictedHeader(String headerName) {
+		// HttpClient restricts these headers - they are set automatically
+		String lowerName = headerName.toLowerCase();
+		return lowerName.equals("host") ||
+		       lowerName.equals("connection") ||
+		       lowerName.equals("content-length") ||
+		       lowerName.equals("expect") ||
+		       lowerName.equals("upgrade");
 	}
 
 	@Override

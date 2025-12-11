@@ -193,8 +193,8 @@ class PostUSpec extends Specification {
 				)
 			)
 		and:
-			def exception = thrown(SocketTimeoutException)
-			exception.message == 'Read timed out'
+			def exception = thrown(java.net.http.HttpTimeoutException)
+			exception.message == 'request timed out'
 	}
 
 	def "Should obtain the desired response when the read timeout is greater than the response delay of the connection"() {

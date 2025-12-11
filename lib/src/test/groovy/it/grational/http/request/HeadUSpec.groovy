@@ -4,7 +4,7 @@ import spock.lang.*
 import it.grational.specification.MockServer
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
-import it.grational.http.response.Response
+import it.grational.http.response.HttpResponse
 
 class HeadUSpec extends Specification {
 
@@ -31,7 +31,7 @@ class HeadUSpec extends Specification {
 			)
 
 		when:
-			Response response = new Head(ms.url).connect()
+			HttpResponse response = new Head(ms.url).connect()
 
 		then:
 			ms.verify (
