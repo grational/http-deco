@@ -85,6 +85,42 @@ class RedirectionsUSpec extends Specification {
 			response.url()  == destination.toURL()
 	}
 
+	def "Should follow redirects for various status codes"() {
+		given:
+			String redirectPath = "/redirect/${status}"
+			String redirectUrl = "${http.origin}${redirectPath}"
+			String destinationPath = "/final/${status}"
+			String destination = "${http.origin}${destinationPath}"
+		and:
+			http.stubFor (
+				get(urlPathEqualTo(redirectPath))
+				.willReturn (
+					aResponse()
+						.withStatus(status)
+						.withHeader("Location", destination)
+				)
+			)
+		and:
+			http.stubFor (
+				get(urlPathEqualTo(destinationPath))
+				.willReturn (
+					okJson('{"status": "ok"}')
+				)
+			)
+
+		when:
+			HttpResponse response = new Redirections (
+				new Get(redirectUrl.toURL())
+			).connect()
+
+		then:
+			response.code() == HTTP_OK
+			response.url()  == destination.toURL()
+
+		where:
+			status << [HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER, 307, 308]
+	}
+
 	def "Should not follow more than the given number of redirects"() {
 		given:
 			String permanentRedirectPath = "/2/permanent/redirect"
@@ -163,6 +199,130 @@ class RedirectionsUSpec extends Specification {
 			response.code() == HTTP_MOVED_TEMP
 			response.text() == temporaryRedirectBody
 			response.url()  == temporaryRedirect.toURL()
+	}
+
+	def "Should switch to GET when receiving a 303 See Other redirect"() {
+		given:
+			String postPath = "/303/post"
+			String postUrl = "${http.origin}${postPath}"
+			String destinationPath = "/303/get"
+			String destination = "${http.origin}${destinationPath}"
+		and:
+			http.stubFor (
+				post(urlPathEqualTo(postPath))
+				.willReturn (
+					aResponse()
+						.withStatus(HTTP_SEE_OTHER)
+						.withHeader("Location", destination)
+				)
+			)
+		and:
+			http.stubFor (
+				get(urlPathEqualTo(destinationPath))
+				.willReturn (
+					okJson('{"method": "GET"}')
+				)
+			)
+
+		when:
+			HttpResponse response = new Redirections (
+				new Post (
+					postUrl.toURL(),
+					'{"data": "some data"}',
+					[:],
+					null
+				)
+			).connect()
+
+		then:
+			response.code() == HTTP_OK
+			response.text() == '{"method": "GET"}'
+			response.url()  == destination.toURL()
+	}
+
+	def "Should preserve HEAD method when receiving a 303 See Other redirect"() {
+		given:
+			String headPath = "/303/head"
+			String headUrl = "${http.origin}${headPath}"
+			String destinationPath = "/303/head/destination"
+			String destination = "${http.origin}${destinationPath}"
+		and:
+			http.stubFor (
+				head(urlPathEqualTo(headPath))
+				.willReturn (
+					aResponse()
+						.withStatus(HTTP_SEE_OTHER)
+						.withHeader("Location", destination)
+				)
+			)
+		and:
+			http.stubFor (
+				head(urlPathEqualTo(destinationPath))
+				.willReturn (
+					aResponse()
+						.withStatus(HTTP_OK)
+				)
+			)
+
+		when:
+			HttpResponse response = new Redirections (
+				new Head(headUrl.toURL())
+			).connect()
+
+		then:
+			http.verify (
+				1,
+				headRequestedFor (
+					urlPathEqualTo(destinationPath)
+				)
+			)
+		and:
+			response.code() == HTTP_OK
+			response.url()  == destination.toURL()
+	}
+
+	def "Should preserve POST method when receiving a method-preserving redirect"() {
+		given:
+			String postPath = "/${status}/post"
+			String postUrl = "${http.origin}${postPath}"
+			String destinationPath = "/${status}/destination"
+			String destination = "${http.origin}${destinationPath}"
+			String body = '{"data": "some data"}'
+		and:
+			http.stubFor (
+				post(urlPathEqualTo(postPath))
+				.willReturn (
+					aResponse()
+						.withStatus(status)
+						.withHeader("Location", destination)
+				)
+			)
+		and:
+			http.stubFor (
+				post(urlPathEqualTo(destinationPath))
+				.withRequestBody(equalTo(body))
+				.willReturn (
+					okJson('{"method": "POST", "status": "ok"}')
+				)
+			)
+
+		when:
+			HttpResponse response = new Redirections (
+				new Post (
+					postUrl.toURL(),
+					body,
+					[:],
+					null
+				)
+			).connect()
+
+		then:
+			response.code() == HTTP_OK
+			response.text() == '{"method": "POST", "status": "ok"}'
+			response.url()  == destination.toURL()
+
+		where:
+			status << [307, 308]
 	}
 
   // 4. helper methods
