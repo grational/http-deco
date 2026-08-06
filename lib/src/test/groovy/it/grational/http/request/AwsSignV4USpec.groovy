@@ -5,7 +5,7 @@ import spock.lang.*
 import it.grational.proxy.HttpAuthProxy
 import it.grational.proxy.HttpProxy
 import it.grational.http.response.HttpResponse
-import it.grational.specification.Environment
+import it.grational.test.Environment
 import static java.net.HttpURLConnection.*
 
 import it.grational.specification.MockServer

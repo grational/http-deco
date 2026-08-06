@@ -46,16 +46,46 @@ image::images/logo-2x.png[width=800]
 
 ## **Installation**
 
-The http-decò library is available through jitpack. 
+The http-decò library is available through JitPack. Groovy is an exported
+runtime dependency, so select the artifact matching the Groovy major used by
+your application.
+
+[cols="1,1,1,1,3", options="header"]
+|===
+| Version
+| Branch
+| Java
+| Groovy
+| Use it when
+
+| `v4.8.0`
+| `master`
+| 17+
+| 5.0.4
+| The application uses the current Groovy line.
+
+| `v4.8.0-g4`
+| `groovy-4`
+| 17+
+| 4.0.30
+| The application depends on Groovy 4.
+
+| `v4.8.0-j8g3`
+| `java-8-groovy-3`
+| 8+
+| 3.0.25
+| The application must remain compatible with Java 8 and Groovy 3.
+|===
 
 To start using it into your project, add the following dependency to your `build.gradle` file:
 
 ```groovy
+repositories {
+	maven { url = uri('https://jitpack.io') }
+}
+
 dependencies {
-	// ...
-	'com.github.grational:http-deco:4.5.0',
-	'org.apache.groovy:groovy:3.0.21',
-	// ...
+	implementation 'com.github.grational:http-deco:v4.8.0'
 }
 ```
 
@@ -64,12 +94,7 @@ Or for your `pom.xml` file:
 <dependency>
 	<groupId>com.github.grational</groupId>
 	<artifactId>http-deco</artifactId>
-	<version>4.5.0</version>
-</dependency>
-<dependency>
-	<groupId>org.apache.groovy</groupId>
-	<artifactId>groovy</artifactId>
-	<version>3.0.21</version>
+	<version>v4.8.0</version>
 </dependency>
 ```
 

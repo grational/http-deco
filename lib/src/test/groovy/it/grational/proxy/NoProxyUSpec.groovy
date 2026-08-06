@@ -1,7 +1,7 @@
 package it.grational.proxy
 
 import spock.lang.*
-import it.grational.specification.Environment
+import it.grational.test.Environment
 
 class NoProxyUSpec extends Specification {
 

@@ -51,7 +51,7 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the actual response the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			1 * cacheContainer.write(joinedResponse) >> null
+			1 * cacheContainer.write(joinedResponse)
 			1 * cacheContainer.content() >> joinedResponse
 		and:
 			actualResult.code() == HTTP_OK
@@ -95,7 +95,7 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the text the first time'
 			1 * cacheContainer.valid(_) >> false
 			0 * get.connect()
-			0 * cacheContainer.write(okResponse.content()) >> null
+			0 * cacheContainer.write(okResponse.content())
 		and:
 			def exception = thrown(RuntimeException)
 			exception.message == "Cache operations interrupted"
@@ -132,7 +132,7 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the text the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			0 * cacheContainer.write(joinedResponse) >> null
+			0 * cacheContainer.write(joinedResponse)
 		and:
 			actualResult.is(response)
 			actualResult.code() == HTTP_BAD_REQUEST
@@ -188,7 +188,7 @@ class CacheUSpec extends Specification {
 		then: '1 call is done to obtain the text the first time'
 			1 * cacheContainer.valid(_) >> false
 			1 * get.connect() >> response
-			1 * cacheContainer.write(joinedResponse) >> null
+			1 * cacheContainer.write(joinedResponse)
 			1 * cacheContainer.content() >> { joinedResponse }
 		and:
 			actualResult.code() == HTTP_BAD_REQUEST
