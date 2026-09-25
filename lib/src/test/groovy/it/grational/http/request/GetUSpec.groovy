@@ -756,7 +756,7 @@ class GetUSpec extends Specification {
 				protocol: ms.protocol,
 				authority: ms.authority,
 				path: path,
-				userInfo: UserInfo.encoded(encodedUsername, encodedPassword)
+				credentials: UserInfo.encoded(encodedUsername, encodedPassword)
 			).toURL()
 
 		when:

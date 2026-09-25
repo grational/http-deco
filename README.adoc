@@ -70,14 +70,15 @@ your application.
 | 4.0.30
 | The application depends on Groovy 4.
 
-| `v4.8.0-j8g3`
+| `v4.9.0-j8g3`
 | `java-8-groovy-3`
 | 8+
 | 3.0.25
 | The application must remain compatible with Java 8 and Groovy 3.
 |===
 
-To start using it into your project, add the following dependency to your `build.gradle` file:
+For the Groovy 3 release with the credential methods documented below, add the
+following dependency to your `build.gradle` file:
 
 ```groovy
 repositories {
@@ -85,7 +86,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.github.grational:http-deco:v4.8.0'
+	implementation 'com.github.grational:http-deco:v4.9.0-j8g3'
 }
 ```
 
@@ -94,7 +95,7 @@ Or for your `pom.xml` file:
 <dependency>
 	<groupId>com.github.grational</groupId>
 	<artifactId>http-deco</artifactId>
-	<version>v4.8.0</version>
+	<version>v4.9.0-j8g3</version>
 </dependency>
 ```
 
@@ -115,12 +116,23 @@ new Get('https://example.com/api'.toURL())
 new Get('https://example.com/api'.toURL())
 	.withEncodedBasicAuth('user', 'pa%40ss')
 
-def url = new StructuredURL (
+// The equivalent StructuredURL forms:
+def literal = new StructuredURL (
 	protocol: 'https',
 	authority: 'example.com',
 	path: '/api',
-	userInfo: UserInfo.encoded('user', 'pa%40ss')
+	username: 'user',
+	password: 'pa@ss'
 ).toURL()
+
+def encoded = new StructuredURL (
+	protocol: 'https',
+	authority: 'example.com',
+	path: '/api',
+	credentials: UserInfo.encoded('user', 'pa%40ss')
+).toURL()
+
+assert literal.toString() == encoded.toString()
 ```
 
 The encoded entry points decode once using UTF-8 (Unicode Transformation Format,
@@ -128,9 +140,14 @@ The encoded entry points decode once using UTF-8 (Unicode Transformation Format,
 literal plus. Malformed percent escapes are rejected. Literal entry points
 preserve text such as `%20` as part of the password.
 
-`StructuredURL` also accepts `userInfo: new UserInfo(username, password)` for
-literal credentials. Combining `userInfo` with either `username` or `password`
+`StructuredURL` also accepts `credentials: new UserInfo(username, password)` for
+literal credentials. Combining `credentials` with either `username` or `password`
 is rejected, including when those parameters are empty or null.
+
+The constructor parameter is `credentials`; the earlier `userInfo` spelling is
+rejected with a migration message. If you downloaded the initial
+`v4.9.0-j8g3` build, refresh Gradle dependencies with `--refresh-dependencies`
+after updating the parameter name.
 
 ## **Usage example**
 

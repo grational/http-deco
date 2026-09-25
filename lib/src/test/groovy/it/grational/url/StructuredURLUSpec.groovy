@@ -111,14 +111,14 @@ class StructuredURLUSpec extends Specification {
 	}
 
 	@Unroll
-	def "Should accept an explicit user info object"() {
+	def "Should accept an explicit credentials object"() {
 		given:
 			def urlObj = new StructuredURL (
 				protocol: 'https',
 				authority: 'example.com:8081',
 				path: '/api',
 				qparams: [page: 1],
-				userInfo: userInfo
+				credentials: credentials
 			)
 			String expected = 'https://user:pa%40ss@example.com:8081/api?page=1'
 
@@ -128,22 +128,35 @@ class StructuredURLUSpec extends Specification {
 			urlObj.toURI().toString() == expected
 
 		where:
-			userInfo << [new UserInfo('user', 'pa@ss'), UserInfo.encoded('user', 'pa%40ss')]
+			credentials << [new UserInfo('user', 'pa@ss'), UserInfo.encoded('user', 'pa%40ss')]
 	}
 
 	@Unroll
-	def "Should reject user info combined with username or password parameters"() {
+	def "Should reject credentials combined with username or password parameters"() {
 		when:
 			new StructuredURL (
-				[protocol: 'https', authority: 'example.com', userInfo: new UserInfo('user', 'pass')] + credentials
+				[protocol: 'https', authority: 'example.com', credentials: new UserInfo('user', 'pass')] + parameters
 			)
 
 		then:
 			def exception = thrown(IllegalArgumentException)
-			exception.message == '[StructuredURL] Use either userInfo or username/password parameters'
+			exception.message == '[StructuredURL] Use either credentials or username/password parameters'
 
 		where:
-			credentials << [[username: 'user'], [password: 'pass'], [username: null], [password: '']]
+			parameters << [[username: 'user'], [password: 'pass'], [username: null], [password: '']]
+	}
+
+	def "Should reject the replaced userInfo parameter instead of dropping authentication"() {
+		when:
+			new StructuredURL (
+				protocol: 'https',
+				authority: 'example.com',
+				userInfo: new UserInfo('user', 'pass')
+			)
+
+		then:
+			def exception = thrown(IllegalArgumentException)
+			exception.message == '[StructuredURL] Use credentials instead of userInfo'
 	}
 
 	@Unroll
