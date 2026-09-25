@@ -26,4 +26,9 @@ interface HttpRequest {
 		String password
 	)
 
+	public HttpRequest withEncodedBasicAuth (
+		String username,
+		String password
+	)
+
 }

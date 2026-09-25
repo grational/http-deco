@@ -6,6 +6,8 @@ import it.grational.proxy.HttpAuthProxy
 import it.grational.proxy.HttpProxy
 import it.grational.http.response.HttpResponse
 import it.grational.test.Environment
+import it.grational.url.StructuredURL
+import it.grational.url.UserInfo
 import static java.net.HttpURLConnection.*
 
 import it.grational.specification.MockServer
@@ -692,6 +694,148 @@ class GetUSpec extends Specification {
 
 		then:
 			request.url.toString() == "${protocol}://${username}:${password}@${residual}"
+	}
+
+	@Unroll
+	def "Should preserve literal basic auth credentials containing #character"() {
+		given:
+			String path = "/auth/credentials/${character}"
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn(okJson(ms.ok.body))
+			)
+		and:
+			URL structured = new StructuredURL (
+				protocol: ms.protocol,
+				authority: ms.authority,
+				path: path,
+				username: username,
+				password: password
+			).toURL()
+
+		when:
+			HttpRequest request = new Get("${ms.origin}${path}".toURL())
+				.withBasicAuth(username, password)
+			HttpResponse response = request.connect()
+
+		then:
+			request.url.toString() == structured.toString()
+			response.code() == HTTP_OK
+		and:
+			ms.verify (
+				1,
+				getRequestedFor(urlPathEqualTo(path))
+				.withBasicAuth(new BasicCredentials(username, password))
+			)
+
+		where:
+			character           | username    | password
+			'at'                | 'user@host' | 'pa@ss'
+			'hash'              | 'user'      | 'pa#ss'
+			'slash'             | 'user'      | 'pa/ss'
+			'question'          | 'user'      | 'pa?ss'
+			'colon'             | 'user'      | 'pa:ss:word'
+			'plus'              | 'user+name' | 'pa+ss'
+			'space'             | 'user name' | 'pa ss'
+			'percent'           | 'user'      | 'pa%ss%'
+			'percent-escape'    | 'user%20'   | 'pa%20ss'
+			'incomplete-escape' | 'user'      | 'pa%2'
+			'mixed'             | 'user+%20'  | 'pa+%20:%&ss'
+	}
+
+	@Unroll
+	def "Should send equivalent basic auth from encoded request and structured credentials for #character"() {
+		given:
+			String path = "/auth/encoded/${character}"
+			ms.stubFor (
+				get(urlPathEqualTo(path))
+				.willReturn(okJson(ms.ok.body))
+			)
+			HttpRequest request = new Get("${ms.origin}${path}".toURL())
+			URL structured = new StructuredURL (
+				protocol: ms.protocol,
+				authority: ms.authority,
+				path: path,
+				userInfo: UserInfo.encoded(encodedUsername, encodedPassword)
+			).toURL()
+
+		when:
+			HttpRequest authenticated = request.withEncodedBasicAuth(encodedUsername, encodedPassword)
+			HttpResponse directResponse = authenticated.connect()
+			HttpResponse structuredResponse = new Get(structured).connect()
+
+		then:
+			authenticated.is(request)
+			request.url.toString() == structured.toString()
+			directResponse.code() == HTTP_OK
+			structuredResponse.code() == HTTP_OK
+		and:
+			ms.verify (
+				2,
+				getRequestedFor(urlPathEqualTo(path))
+				.withBasicAuth(new BasicCredentials(username, password))
+			)
+
+		where:
+			character | encodedUsername | encodedPassword       || username    | password
+			'at'      | 'user%40host'   | 'pa%40ss'             || 'user@host' | 'pa@ss'
+			'space'   | 'user%20name'   | 'pa+ss'               || 'user name' | 'pa ss'
+			'plus'    | 'user%2Bname'   | 'pa%2Bss'             || 'user+name' | 'pa+ss'
+			'percent' | 'user%2520'     | 'pa%2520ss'           || 'user%20'   | 'pa%20ss'
+			'mixed'   | 'user'          | 'pa%3A%23%2F%3F%25ss' || 'user'      | 'pa:#/?%ss'
+	}
+
+	def "Should apply encoded basic auth through nested request wrappers"() {
+		given:
+			HttpRequest origin = new Get('http://example.test/path'.toURL())
+			HttpRequest request = new Redirections(new Retry(origin))
+
+		when:
+			HttpRequest authenticated = request.withEncodedBasicAuth('user%40host', 'pa%20ss')
+
+		then:
+			authenticated.is(origin)
+			origin.url.userInfo == 'user%40host:pa+ss'
+	}
+
+	def "Should leave the destination unchanged when encoded credentials are malformed"() {
+		given:
+			URL original = 'http://user:pass@example.test/path'.toURL()
+			HttpRequest request = new Get(original)
+
+		when:
+			request.withEncodedBasicAuth('user', 'pa%')
+
+		then:
+			thrown(IllegalArgumentException)
+			request.url.toString() == original.toString()
+	}
+
+	@Unroll
+	def "Should replace encoded credentials repeatedly without changing the destination"() {
+		given:
+			URL original = "http://${userInfo}example.test:8081/a%20b/@path?next=http://other.test/a@b#section".toURL()
+			HttpRequest request = new Get(original)
+
+		when:
+			HttpRequest first = request.withBasicAuth('new@user', 'pa:+%20#ss')
+			String authenticated = request.url.toString()
+			HttpRequest second = request.withBasicAuth('new@user', 'pa:+%20#ss')
+
+		then:
+			first.is(request)
+			second.is(request)
+			request.url.toString() == authenticated
+			request.url.userInfo == 'new%40user:pa%3A%2B%2520%23ss'
+			request.url.protocol == original.protocol
+			request.url.host == original.host
+			request.url.port == original.port
+			request.url.path == original.path
+			request.url.query == original.query
+			request.url.ref == original.ref
+
+		where:
+			userInfo << ['', 'old%40user:old%2Bpass@']
 	}
 
 	def "Should be able to read the response twice from the concrete response"() {

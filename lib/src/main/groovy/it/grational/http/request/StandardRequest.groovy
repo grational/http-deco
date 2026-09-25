@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 import it.grational.http.response.Response
 import it.grational.http.response.HttpResponse
 import it.grational.http.header.Authorization
+import it.grational.url.UserInfo
 import it.grational.proxy.NoProxy
 import it.grational.proxy.EnvVar
 import it.grational.proxy.EnvProxy
@@ -37,7 +38,7 @@ abstract class StandardRequest implements HttpRequest {
 	protected Proxy     proxy
 
 	private static final String urlPattern =
-		$/(?<protocol>[^:]{3,})://(?:[^:]+:(?:[^@]*@)+)?(?<residual>.*)/$
+		$/(?<protocol>[^:]{3,})://(?:[^/?#]*@)?(?<residual>.*)/$
 
 	@Override
 	HttpResponse connect() {
@@ -239,13 +240,31 @@ abstract class StandardRequest implements HttpRequest {
 		return this
 	}
 
+	/**
+	 * Replace basic authentication credentials using literal, unencoded values.
+	 */
 	@Override
 	public HttpRequest withBasicAuth (
 		String username,
 		String password
 	) {
+		this.withUserInfo(new UserInfo(username, password))
+	}
+
+	/**
+	 * Replace basic authentication credentials using explicitly encoded values.
+	 */
+	@Override
+	public HttpRequest withEncodedBasicAuth (
+		String username,
+		String password
+	) {
+		this.withUserInfo(UserInfo.encoded(username, password))
+	}
+
+	private HttpRequest withUserInfo(UserInfo userInfo) {
 		Matcher m = (url =~ urlPattern); m.find()
-		this.url = "${m.group('protocol')}://${username}:${password}@${m.group('residual')}".toURL()
+		this.url = "${m.group('protocol')}://${userInfo}@${m.group('residual')}".toURL()
 		return this
 	}
 

@@ -98,6 +98,40 @@ Or for your `pom.xml` file:
 </dependency>
 ```
 
+## **Basic authentication**
+
+Pass literal credentials to `withBasicAuth()` or to the `username` and
+`password` parameters of `StructuredURL`. Use the explicit encoded entry points
+when the credentials have already been encoded:
+
+```groovy
+import it.grational.http.request.Get
+import it.grational.url.StructuredURL
+import it.grational.url.UserInfo
+
+// These requests use the same password: pa@ss
+new Get('https://example.com/api'.toURL())
+	.withBasicAuth('user', 'pa@ss')
+new Get('https://example.com/api'.toURL())
+	.withEncodedBasicAuth('user', 'pa%40ss')
+
+def url = new StructuredURL (
+	protocol: 'https',
+	authority: 'example.com',
+	path: '/api',
+	userInfo: UserInfo.encoded('user', 'pa%40ss')
+).toURL()
+```
+
+The encoded entry points decode once using UTF-8 (Unicode Transformation Format,
+8-bit) and form-encoding rules: `%20` or `+` means a space, and `%2B` means a
+literal plus. Malformed percent escapes are rejected. Literal entry points
+preserve text such as `%20` as part of the password.
+
+`StructuredURL` also accepts `userInfo: new UserInfo(username, password)` for
+literal credentials. Combining `userInfo` with either `username` or `password`
+is rejected, including when those parameters are empty or null.
+
 ## **Usage example**
 
 ```groovy
