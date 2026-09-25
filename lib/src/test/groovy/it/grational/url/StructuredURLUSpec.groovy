@@ -111,6 +111,42 @@ class StructuredURLUSpec extends Specification {
 	}
 
 	@Unroll
+	def "Should accept an explicit user info object"() {
+		given:
+			def urlObj = new StructuredURL (
+				protocol: 'https',
+				authority: 'example.com:8081',
+				path: '/api',
+				qparams: [page: 1],
+				userInfo: userInfo
+			)
+			String expected = 'https://user:pa%40ss@example.com:8081/api?page=1'
+
+		expect:
+			urlObj.toString() == expected
+			urlObj.toURL().toString() == expected
+			urlObj.toURI().toString() == expected
+
+		where:
+			userInfo << [new UserInfo('user', 'pa@ss'), UserInfo.encoded('user', 'pa%40ss')]
+	}
+
+	@Unroll
+	def "Should reject user info combined with username or password parameters"() {
+		when:
+			new StructuredURL (
+				[protocol: 'https', authority: 'example.com', userInfo: new UserInfo('user', 'pass')] + credentials
+			)
+
+		then:
+			def exception = thrown(IllegalArgumentException)
+			exception.message == '[StructuredURL] Use either userInfo or username/password parameters'
+
+		where:
+			credentials << [[username: 'user'], [password: 'pass'], [username: null], [password: '']]
+	}
+
+	@Unroll
 	def "Should properly handle special characters in basic auth credentials"() {
 		when:
 			def urlObj = new StructuredURL (

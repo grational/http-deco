@@ -1,11 +1,8 @@
 package it.grational.url
 
-import static java.net.URLEncoder.encode
-
 final class StructuredURL implements URLConvertible {
 	private final String protocol
-	private final String username
-	private final String password
+	private final UserInfo userInfo
 	private final String authority
 	private final String path
 	private final String qstring
@@ -28,8 +25,15 @@ final class StructuredURL implements URLConvertible {
 			}()
 		}
 
-		this.username = params.username ?: ''
-		this.password = params.password ?: ''
+		if (params.containsKey('userInfo') && (params.containsKey('username') || params.containsKey('password'))) {
+			throw new IllegalArgumentException (
+				"[${this.class.simpleName}] Use either userInfo or username/password parameters"
+			)
+		}
+		this.userInfo = params.userInfo ?: (params.username ? new UserInfo (
+			params.username as String,
+			(params.password ?: '') as String
+		) : null)
 
 		this.path = params.path ?: ''
 
@@ -57,10 +61,8 @@ final class StructuredURL implements URLConvertible {
 	@Override
 	String toString() {
 		String result = "${protocol}://"
-		if (username) {
-			String encodedUsername = encode(username, 'UTF-8')
-			String encodedPassword = encode(password ?: '', 'UTF-8')
-			result += "${encodedUsername}:${encodedPassword}@"
+		if (userInfo) {
+			result += "${userInfo}@"
 		}
 		result += authority
 		if (path)
