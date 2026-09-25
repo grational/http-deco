@@ -2,7 +2,7 @@ package it.grational.url
 
 final class StructuredURL implements URLConvertible {
 	private final String protocol
-	private final UserInfo userInfo
+	private final UserInfo credentials
 	private final String authority
 	private final String path
 	private final String qstring
@@ -25,12 +25,17 @@ final class StructuredURL implements URLConvertible {
 			}()
 		}
 
-		if (params.containsKey('userInfo') && (params.containsKey('username') || params.containsKey('password'))) {
+		if (params.containsKey('userInfo')) {
 			throw new IllegalArgumentException (
-				"[${this.class.simpleName}] Use either userInfo or username/password parameters"
+				"[${this.class.simpleName}] Use credentials instead of userInfo"
 			)
 		}
-		this.userInfo = params.userInfo ?: (params.username ? new UserInfo (
+		if (params.containsKey('credentials') && (params.containsKey('username') || params.containsKey('password'))) {
+			throw new IllegalArgumentException (
+				"[${this.class.simpleName}] Use either credentials or username/password parameters"
+			)
+		}
+		this.credentials = params.credentials ?: (params.username ? new UserInfo (
 			params.username as String,
 			(params.password ?: '') as String
 		) : null)
@@ -61,8 +66,8 @@ final class StructuredURL implements URLConvertible {
 	@Override
 	String toString() {
 		String result = "${protocol}://"
-		if (userInfo) {
-			result += "${userInfo}@"
+		if (credentials) {
+			result += "${credentials}@"
 		}
 		result += authority
 		if (path)
