@@ -3,7 +3,7 @@ package it.grational.http.request
 import spock.lang.*
 import it.grational.http.response.HttpResponse
 import static java.net.HttpURLConnection.*
-import it.grational.specification.MockServer
+import it.grational.test.MockServer
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static java.net.HttpURLConnection.*
 

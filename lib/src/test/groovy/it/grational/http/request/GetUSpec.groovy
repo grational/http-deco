@@ -10,7 +10,7 @@ import it.grational.url.StructuredURL
 import it.grational.url.UserInfo
 import static java.net.HttpURLConnection.*
 
-import it.grational.specification.MockServer
+import it.grational.test.MockServer
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.client.BasicCredentials
 
@@ -299,7 +299,7 @@ class GetUSpec extends Specification {
 			]
 			String userInfo = "${credentials.user}:${credentials.pass}"
 		and:
-			URL url = "${ms.protocol}://${userInfo}@${ms.authority}${ms.path}".toURL()
+			URL url = new URL("${ms.protocol}://${userInfo}@${ms.authority}${ms.path}")
 		and:
 			ms.stubFor (
 				get(urlPathEqualTo(ms.path))

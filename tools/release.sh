@@ -64,30 +64,31 @@ for command in bw git jq; do
 	command -v "$command" >/dev/null || fail "Required command not found: $command"
 done
 
-declare -a branches=(
-	"$main_branch"
-	'groovy-4'
-	'java-8-groovy-3'
+# branch, version suffix and whether to rebase onto master
+targets=(
+	'groovy-5:g5:true'
+	'groovy-4:g4:true'
+	'java-8-groovy-3:j8g3:false'
 )
 
-for branch in "${branches[@]}"; do
-	git show-ref --verify --quiet "refs/heads/$branch" \
-		|| fail "Required local branch not found: $branch"
-done
+check_target() {
+	local branch="$1" tag="${prefix}${version}$2"
+	git show-ref --verify --quiet "refs/heads/$branch" || fail "Missing local branch: $branch"
+	if git show-ref --verify --quiet "refs/tags/$tag"; then
+		fail "Tag already exists: $tag"
+	fi
+}
 
-declare -a postfixes=(
-	''
-	'-g4'
-	'-j8g3'
-)
-
-for postfix in "${postfixes[@]}"; do
-	tag="${prefix}${version}${postfix}"
-	git show-ref --verify --quiet "refs/tags/$tag" \
-		&& fail "Local tag already exists: $tag"
-	[[ -z $(git ls-remote --tags origin "refs/tags/$tag") ]] \
-		|| fail "Remote tag already exists: $tag"
+git fetch --prune --tags origin
+check_target "$main_branch" ''
+for target in "${targets[@]}"; do
+	IFS=: read -r branch suffix _ <<< "$target"
+	check_target "$branch" "-$suffix"
+	if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+		git merge-base --is-ancestor "origin/$branch" "$branch" || fail "Local branch is behind or diverged: $branch"
+	fi
 done
+[[ $(git rev-parse "$main_branch") == $(git rev-parse "origin/$main_branch") ]] || fail "Publish $main_branch before releasing"
 
 password="$(platform_password)"
 [[ -n $password ]] || fail 'Bitwarden returned an empty platform token'
@@ -95,18 +96,15 @@ password="$(platform_password)"
 git switch "$main_branch"
 release "$version"
 
-branch=groovy-4
-git switch "$branch"
-git rebase "$main_branch"
-remote_tip="$(git ls-remote --heads origin "refs/heads/$branch" | cut -f1)"
-if [[ -n $remote_tip ]]; then
-	git push --force-with-lease="$branch:$remote_tip" origin "$branch:$branch"
-else
-	git push --set-upstream origin "$branch:$branch"
-fi
-release "$version-g4"
-
-branch=java-8-groovy-3
-git switch "$branch"
-git push origin "$branch:$branch"
-release "$version-j8g3"
+for target in "${targets[@]}"; do
+	IFS=: read -r branch suffix rebase <<< "$target"
+	git switch "$branch"
+	if [[ $rebase == true ]]; then
+		old_tip=$(git rev-parse --verify "refs/remotes/origin/$branch" 2>/dev/null || true)
+		git rebase "$main_branch"
+		git push --force-with-lease="refs/heads/$branch:$old_tip" -u origin "$branch"
+	else
+		git push origin "$branch"
+	fi
+	release "$version-$suffix"
+done

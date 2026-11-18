@@ -8,7 +8,7 @@ import it.grational.http.response.HttpResponse
 import it.grational.test.Environment
 import static java.net.HttpURLConnection.*
 
-import it.grational.specification.MockServer
+import it.grational.test.MockServer
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.client.BasicCredentials
 

@@ -58,22 +58,28 @@ your application.
 | Groovy
 | Use it when
 
-| `v4.8.0`
+| `vX.Y.Z`
 | `master`
 | 17+
-| 5.0.4
+| 6.x
 | The application uses the current Groovy line.
 
-| `v4.8.0-g4`
+| `vX.Y.Z-g5`
+| `groovy-5`
+| 17+
+| 5.x
+| The application depends on Groovy 5.
+
+| `vX.Y.Z-g4`
 | `groovy-4`
 | 17+
-| 4.0.30
+| 4.x
 | The application depends on Groovy 4.
 
-| `v4.9.0-j8g3`
+| `vX.Y.Z-j8g3`
 | `java-8-groovy-3`
 | 8+
-| 3.0.25
+| 3.x
 | The application must remain compatible with Java 8 and Groovy 3.
 |===
 

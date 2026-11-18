@@ -2,7 +2,7 @@ package it.grational.http.request
 
 import spock.lang.*
 import groovy.json.JsonOutput
-import it.grational.specification.MockServer
+import it.grational.test.MockServer
 import java.nio.charset.Charset
 import static java.nio.charset.StandardCharsets.*
 

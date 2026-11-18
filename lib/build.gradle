@@ -18,14 +18,13 @@ plugins {
 
 // [flavor] compatibility matrix
 project.ext {
-	toolchainVersion   = 25
+	toolchainVersion   = 17
 	jvmVersion         = 17
-	groovy             = [major: 4, minor: 0, patch: 30]
+	groovy             = [major: 6, minor: 0, patch: 0]
 	groovyGroup        = groovy.major >= 4 ? 'apache' : 'codehaus'
 	groovyVersion      = groovy.values().join('.')
 	flavor             = "java-${jvmVersion}-groovy-${groovy.major}"
-	spockVersion       = "2.4-groovy-${groovy.major}.${groovy.minor}"
-	specSupportVersion = 'release-1.1.3'
+	spockVersion       = "2.5-groovy-${groovy.major}.${groovy.minor}"
 }
 
 scmVersion {
@@ -75,7 +74,7 @@ dependencies {
 	// We use the awesome Spock testing and specification framework
 	testImplementation (
 		"org.spockframework:spock-core:$spockVersion",
-		"com.github.grational:specification-support:$specSupportVersion",
+		'com.github.tomakehurst:wiremock-jre8-standalone:2.35.0',
 		"org.${groovyGroup}.groovy:groovy-dateutil:$groovyVersion"
 	)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -84,7 +83,8 @@ dependencies {
 // [tasks] configuration //
 tasks.withType(Test) {
 	useJUnitPlatform()
-	maxParallelForks = Runtime.runtime.availableProcessors() / 2
+	maxParallelForks = 1
+	javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(project.jvmVersion) }
 	jvmArgs('--add-opens=java.base/java.util=ALL-UNNAMED')
 }
 jar {
