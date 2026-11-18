@@ -20,11 +20,11 @@ plugins {
 project.ext {
 	toolchainVersion   = 17
 	jvmVersion         = 17
-	groovy             = [major: 6, minor: 0, patch: 0]
+	groovy             = [major: 4, minor: 0, patch: 30]
 	groovyGroup        = groovy.major >= 4 ? 'apache' : 'codehaus'
 	groovyVersion      = groovy.values().join('.')
 	flavor             = "java-${jvmVersion}-groovy-${groovy.major}"
-	spockVersion       = "2.5-groovy-${groovy.major}.${groovy.minor}"
+	spockVersion       = "2.4-groovy-${groovy.major}.${groovy.minor}"
 }
 
 scmVersion {
