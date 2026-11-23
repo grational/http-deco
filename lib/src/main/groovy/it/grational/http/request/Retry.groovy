@@ -1,73 +1,77 @@
 package it.grational.http.request
 
-import java.util.function.BiConsumer
 import it.grational.http.response.HttpResponse
+import it.grational.http.response.RetryResponse
+import java.util.function.BiConsumer
 
 class Retry extends FunctionalRequest {
 
-	private final Integer retries
-	private final Boolean exception
-	private final BiConsumer retryOperation
+	static final int DEFAULT_ATTEMPTS = 3
+
+	private final int limit
+	private final BiConsumer<Integer, Integer> waitOperation
+	private final boolean body
 
 	Retry (
-		HttpRequest org,
-		Integer retries = 3,
-		BiConsumer rop = { curr, tot -> Thread.sleep(1000 * curr) }
+		HttpRequest origin,
+		Integer retries = DEFAULT_ATTEMPTS,
+		BiConsumer<Integer, Integer> delay = { attempt, total -> Thread.sleep(1000L * attempt) },
+		boolean body = true
 	) {
-		this.origin = org
-		this.retries = retries
-		this.retryOperation = rop
+		this.origin = Objects.requireNonNull(origin)
+		if (retries == null || retries < 1)
+			throw new IllegalArgumentException('At least one attempt is required')
+		this.limit = retries
+		this.waitOperation = Objects.requireNonNull(delay)
+		this.body = body
 	}
 
 	@Override
-	public HttpResponse connect() {
-		for ( int time = 1; time <= retries; time++ ) {
-			try {
-				HttpResponse response = origin.connect()
+	HttpResponse connect() {
+		def attempts = new Attempts(origin, limit, waitOperation)
+		def first = attempts.open()
+		return body ? new RetryResponse(first, attempts.&reopen) : first
+	}
 
-				if ( ok(response) )
-					return response
+	private static final class Attempts {
+		private final HttpRequest request
+		private final int limit
+		private final BiConsumer<Integer, Integer> delay
+		private int used
 
-				if ( shouldNotRetry(response) )
-					return response
+		Attempts(HttpRequest request, int limit, BiConsumer<Integer, Integer> delay) {
+			this.request = request
+			this.limit = limit
+			this.delay = delay
+		}
 
-				if ( retry(time) )
-					continue
-
-				raiseException(response.exception())
-			} catch (IOException e) {
-				if ( !retry(time) )
-					raiseException(e)
+		HttpResponse open() {
+			while (true) {
+				used++
+				Throwable failure
+				try {
+					HttpResponse response = request.connect()
+					if (!response.error() || response.code() in 400..<500)
+						return response
+					failure = response.exception()
+				} catch (IOException ex) {
+					failure = ex
+				}
+				again(failure)
 			}
 		}
-	}
 
-	private Boolean ok(HttpResponse response) {
-		return !response.error()
-	}
+		HttpResponse reopen(IOException failure) {
+			again(failure)
+			return open()
+		}
 
-	private Boolean shouldNotRetry(HttpResponse response) {
-		return response.code() >= 400 && response.code() < 500
+		private void again(Throwable failure) {
+			if (used >= limit)
+				throw new RuntimeException("Retry limit (${limit}) exceeded (${failure.class.simpleName})", failure)
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedIOException('Retry interrupted')
+			delay.accept(used, limit)
+		}
 	}
-
-	private Boolean retry(Integer time) {
-		Boolean retry = (time < retries)
-		if ( retry )
-			retryOperation.accept(time, retries)
-		return retry
-	}
-
-	private ByteArrayInputStream inputStream(String input) {
-		new ByteArrayInputStream (
-			input.join(this.separator).getBytes()
-		)
-	}
-
-	private void raiseException(Exception e) {
-		throw new RuntimeException (
-			"Retry limit (${retries}) exceeded for connection '${origin}' with exception: '${e}'",
-			e
-		)
-	}
-
 }

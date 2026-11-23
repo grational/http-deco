@@ -187,3 +187,17 @@ def response = new Cache (
 	Duration.ofMinutes(5)
 )
 ```
+
+
+== Reading a retried response
+
+`new Retry(request, 3).connect()` shares three total attempts between connecting
+and reading the body. The first accessor (including `code()`) completes the
+response. Headers and bytes belong to the same attempt. Each call to `connect()`
+starts a new budget. The existing delay callback receives the used and maximum
+attempt counts. The wrapped request supplies the connection and read timeouts.
+
+Use body retries for replayable operations. For an operation that may already
+have changed remote state, the fourth constructor argument `false` keeps the
+previous connection-only policy, for example
+`new Retry(request, 3, delay, false)`.

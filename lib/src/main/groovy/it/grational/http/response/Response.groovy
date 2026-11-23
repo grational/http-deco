@@ -52,7 +52,14 @@ class Response extends HttpResponse.StandardResponse {
 	@Memoized
 	@Override
 	byte[] bytes(Boolean exceptions) {
-		this.openInput(exceptions).getBytes()
+		byte[] body = this.openInput(exceptions).getBytes()
+		if (connection instanceof HttpURLConnection && connection.requestMethod != 'HEAD' &&
+				code >= 200 && !(code in [204, 205, 304]) && !connection.getHeaderField('Transfer-Encoding')) {
+			long expected = connection.getHeaderFieldLong('Content-Length', -1L)
+			if (expected >= 0 && expected != body.length)
+				throw new EOFException("Expected ${expected} bytes, received ${body.length}")
+		}
+		return body
 	}
 
 	private InputStream openInput(Boolean exceptions) {
@@ -62,10 +69,11 @@ class Response extends HttpResponse.StandardResponse {
 		} else {
 			try {
 				result = this.connection.inputStream 
-			} catch (e) {
+			} catch (IOException e) {
+				if (code < HTTP_BAD_REQUEST) throw e
 				this.error = true
 				this.exception = e
-				result = this.connection.errorStream
+				result = this.connection.errorStream ?: new ByteArrayInputStream(new byte[0])
 			}
 		}
 		return result
