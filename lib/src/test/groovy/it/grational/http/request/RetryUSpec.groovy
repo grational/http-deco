@@ -111,7 +111,8 @@ class RetryUSpec extends Specification {
 			3 * get.connect() >> { koResponse }
 		and: 'The limit exceeded RuntimeException is thrown'
 			def exception = thrown(RuntimeException)
-			exception.message == "Retry limit (3) exceeded for connection '${get.toString()}' with exception: '${koResponse.exception()}'"
+			exception.message == "Retry limit (3) exceeded (IOException)"
+			exception.cause.is(koResponse.exception())
 	}
 
 	def "Should try to hit a closed port retries times before throwing a runtime exception"() {
